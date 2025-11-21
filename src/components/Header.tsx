@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { authClient } from "~/lib/auth-client";
 import { ModeToggle } from "./mode-toggle";
 import { Button, buttonVariants } from "./ui/button";
@@ -7,7 +7,7 @@ import {
   User,
   Menu,
   Settings,
-  AudioWaveform,
+  Code,
   List,
   Music,
   ListMusic,
@@ -45,6 +45,8 @@ interface HeaderProps {
 
 export function Header({ onOpenPlaylist }: HeaderProps = {}) {
   const { data: session, isPending } = authClient.useSession();
+  const routerState = useRouterState();
+  const currentPath = routerState.location.pathname;
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { avatarUrl } = useUserAvatar();
@@ -54,30 +56,58 @@ export function Header({ onOpenPlaylist }: HeaderProps = {}) {
     <header className="sticky top-0 z-40 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="max-w-screen-2xl mx-auto px-8 flex h-14 items-center">
         <div className="mr-4 flex gap-16">
-          <Link to="/" className="mr-6 flex items-center space-x-2">
-            <AudioWaveform />{" "}
-            <span className="hidden font-bold sm:inline-block">
-              SoundStation
+          <Link to="/" className="mr-6 flex items-center space-x-2 group">
+            <div className="relative">
+              <Code className="h-5 w-5 text-primary transition-transform group-hover:scale-110" />
+              <div className="absolute inset-0 bg-primary/20 rounded-full blur-sm opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            </div>
+            <span className="hidden font-bold sm:inline-block bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+              Full Stack Campus
             </span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-8 text-sm">
-            {navigationLinks.map((link) => (
-              <Link
-                key={link.href}
-                to={link.href}
-                className="transition-colors hover:text-foreground/80 text-foreground/60"
-              >
-                {link.title}
-              </Link>
-            ))}
+          <nav className="hidden md:flex items-center gap-2 text-sm">
+            {navigationLinks.map((link) => {
+              const isActive = currentPath === link.href || (link.href === "/" && currentPath === "/");
+              return (
+                <Link
+                  key={link.href}
+                  to={link.href}
+                  className={`relative px-4 py-2 rounded-lg transition-all duration-200 group ${
+                    isActive 
+                      ? "text-foreground" 
+                      : "text-foreground/70 hover:text-foreground"
+                  }`}
+                >
+                  <span className="relative z-10">{link.title}</span>
+                  <span className={`absolute inset-0 rounded-lg bg-primary/5 transition-opacity duration-200 ${
+                    isActive ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                  }`}></span>
+                  <span className={`absolute inset-0 rounded-lg bg-gradient-to-r from-primary/10 to-purple-600/10 blur-sm transition-opacity duration-200 ${
+                    isActive ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                  }`}></span>
+                </Link>
+              );
+            })}
             {session && (
               <Link
                 to="/upload"
-                className="flex items-center gap-2 transition-colors hover:text-foreground/80 text-foreground/60"
+                className={`relative flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 group ${
+                  currentPath === "/upload"
+                    ? "text-foreground"
+                    : "text-foreground/70 hover:text-foreground"
+                }`}
               >
-                <Upload className="h-4 w-4" />
-                Upload
+                <Upload className={`h-4 w-4 relative z-10 transition-transform ${
+                  currentPath === "/upload" ? "scale-110" : "group-hover:scale-110"
+                }`} />
+                <span className="relative z-10">Upload</span>
+                <span className={`absolute inset-0 rounded-lg bg-primary/5 transition-opacity duration-200 ${
+                  currentPath === "/upload" ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                }`}></span>
+                <span className={`absolute inset-0 rounded-lg bg-gradient-to-r from-primary/10 to-purple-600/10 blur-sm transition-opacity duration-200 ${
+                  currentPath === "/upload" ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                }`}></span>
               </Link>
             )}
           </nav>
@@ -101,43 +131,76 @@ export function Header({ onOpenPlaylist }: HeaderProps = {}) {
                 className="flex items-center space-x-2"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                <AudioWaveform className="h-6 w-6" />
-                <span className="font-bold">SoundStation</span>
+                <Code className="h-6 w-6 text-primary" />
+                <span className="font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">Full Stack Campus</span>
               </Link>
-              <nav className="flex flex-col gap-3 mt-6">
-                {navigationLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    to={link.href}
-                    className="block px-2 py-1 text-lg transition-colors hover:text-foreground/80 text-foreground/60"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    {link.title}
-                  </Link>
-                ))}
+              <nav className="flex flex-col gap-2 mt-6">
+                {navigationLinks.map((link) => {
+                  const isActive = currentPath === link.href || (link.href === "/" && currentPath === "/");
+                  return (
+                    <Link
+                      key={link.href}
+                      to={link.href}
+                      className={`relative block px-4 py-2.5 rounded-lg text-lg transition-all duration-200 group ${
+                        isActive
+                          ? "text-foreground"
+                          : "text-foreground/70 hover:text-foreground"
+                      }`}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <span className="relative z-10">{link.title}</span>
+                      <span className={`absolute inset-0 rounded-lg bg-primary/5 transition-opacity duration-200 ${
+                        isActive ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                      }`}></span>
+                    </Link>
+                  );
+                })}
                 {session && (
                   <>
                     <Link
                       to="/upload"
-                      className="flex items-center gap-2 px-2 py-1 text-lg transition-colors hover:text-foreground/80 text-foreground/60"
+                      className={`relative flex items-center gap-2 px-4 py-2.5 rounded-lg text-lg transition-all duration-200 group ${
+                        currentPath === "/upload"
+                          ? "text-foreground"
+                          : "text-foreground/70 hover:text-foreground"
+                      }`}
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      <Upload className="h-5 w-5" />
-                      Upload
+                      <Upload className={`h-5 w-5 relative z-10 transition-transform ${
+                        currentPath === "/upload" ? "scale-110" : "group-hover:scale-110"
+                      }`} />
+                      <span className="relative z-10">Upload</span>
+                      <span className={`absolute inset-0 rounded-lg bg-primary/5 transition-opacity duration-200 ${
+                        currentPath === "/upload" ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                      }`}></span>
                     </Link>
                     <Link
                       to="/my-songs"
-                      className="block px-2 py-1 text-lg transition-colors hover:text-foreground/80 text-foreground/60"
+                      className={`relative block px-4 py-2.5 rounded-lg text-lg transition-all duration-200 group ${
+                        currentPath === "/my-songs"
+                          ? "text-foreground"
+                          : "text-foreground/70 hover:text-foreground"
+                      }`}
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      My Songs
+                      <span className="relative z-10">My Songs</span>
+                      <span className={`absolute inset-0 rounded-lg bg-primary/5 transition-opacity duration-200 ${
+                        currentPath === "/my-songs" ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                      }`}></span>
                     </Link>
                     <Link
                       to="/playlists"
-                      className="block px-2 py-1 text-lg transition-colors hover:text-foreground/80 text-foreground/60"
+                      className={`relative block px-4 py-2.5 rounded-lg text-lg transition-all duration-200 group ${
+                        currentPath === "/playlists"
+                          ? "text-foreground"
+                          : "text-foreground/70 hover:text-foreground"
+                      }`}
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      My Playlists
+                      <span className="relative z-10">My Playlists</span>
+                      <span className={`absolute inset-0 rounded-lg bg-primary/5 transition-opacity duration-200 ${
+                        currentPath === "/playlists" ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                      }`}></span>
                     </Link>
                   </>
                 )}

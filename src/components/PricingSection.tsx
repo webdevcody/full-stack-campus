@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { useState } from "react";
 import { PricingCard } from "./PricingCard";
 import type { SubscriptionPlan } from "~/db/schema";
+import { FadeIn } from "~/components/ui/fade-in";
 
 interface PricingSectionProps {
   showTitle?: boolean;
@@ -55,62 +56,98 @@ export function PricingSection({ showTitle = true }: PricingSectionProps) {
   };
 
   return (
-    <section id="pricing" className="container mx-auto px-4 py-16 sm:py-24">
-      {showTitle && (
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl mb-4">
-            Choose Your <span className="text-primary">Plan</span>
-          </h2>
-          <p className="text-lg text-muted-foreground sm:text-xl max-w-3xl mx-auto">
-            Start for free and upgrade as you grow. All plans include our core
-            features with increasing limits and premium support.
-          </p>
+    <section id="pricing" className="w-full bg-background py-16 sm:py-24 relative">
+       {/* Background gradient blob */}
+       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-3xl -z-10 pointer-events-none"></div>
+
+      <div className="container mx-auto px-4">
+        {showTitle && (
+          <FadeIn>
+            <div className="text-center mb-16">
+              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl mb-6">
+                Invest in Your <span className="text-primary">Future</span>
+              </h2>
+              <p className="text-lg text-muted-foreground sm:text-xl max-w-3xl mx-auto leading-relaxed">
+                Start your journey to becoming a full stack engineer. With average salaries of $130k+, 
+                this investment pays for itself in months. Choose the plan that fits your learning style.
+              </p>
+            </div>
+          </FadeIn>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <FadeIn delay={100} className="h-full">
+            <PricingCard
+              plan={SUBSCRIPTION_PLANS.FREE}
+              currentPlan={currentPlan}
+              isLoading={isLoadingState}
+              onUpgrade={() => {
+                if (!session) {
+                  authClient.signIn.social({
+                    provider: "google",
+                  });
+                }
+              }}
+              onManagePlans={handleManagePlans}
+            />
+          </FadeIn>
+
+          <FadeIn delay={200} className="h-full">
+            <div className="relative h-full">
+              {/* Popular badge shine effect */}
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-primary via-purple-500 to-primary rounded-lg blur opacity-30 animate-pulse"></div>
+              <PricingCard
+                plan={SUBSCRIPTION_PLANS.BASIC}
+                currentPlan={currentPlan}
+                isLoading={isLoadingState}
+                onUpgrade={handlePlanSelect}
+                onManagePlans={handleManagePlans}
+                isPopular={true}
+              />
+            </div>
+          </FadeIn>
+
+          <FadeIn delay={300} className="h-full">
+            <PricingCard
+              plan={SUBSCRIPTION_PLANS.PRO}
+              currentPlan={currentPlan}
+              isLoading={isLoadingState}
+              onUpgrade={handlePlanSelect}
+              onManagePlans={handleManagePlans}
+            />
+          </FadeIn>
         </div>
-      )}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-        <PricingCard
-          plan={SUBSCRIPTION_PLANS.FREE}
-          currentPlan={currentPlan}
-          isLoading={isLoadingState}
-          onUpgrade={() => {
-            if (!session) {
-              authClient.signIn.social({
-                provider: "google",
-              });
-            }
-          }}
-          onManagePlans={handleManagePlans}
-        />
+        {/* ROI Calculator */}
+        <FadeIn delay={400}>
+          <div className="mt-16 max-w-2xl mx-auto">
+            <div className="bg-muted/50 rounded-lg p-8 text-center border border-border shadow-sm">
+              <h3 className="text-xl font-semibold mb-3">ROI Calculator</h3>
+              <p className="text-muted-foreground mb-4 text-lg">
+                If you increase your salary by just $30k (from $50k to $80k), 
+                a $99/month plan pays for itself in <span className="font-bold text-primary">3.3 months</span>.
+              </p>
+              <p className="text-sm text-muted-foreground font-medium">
+                Average full stack engineer salary: $130k. Most members see salary increases of $40k-$80k+.
+              </p>
+            </div>
+          </div>
+        </FadeIn>
 
-        <PricingCard
-          plan={SUBSCRIPTION_PLANS.BASIC}
-          currentPlan={currentPlan}
-          isLoading={isLoadingState}
-          onUpgrade={handlePlanSelect}
-          onManagePlans={handleManagePlans}
-          isPopular={true}
-        />
-
-        <PricingCard
-          plan={SUBSCRIPTION_PLANS.PRO}
-          currentPlan={currentPlan}
-          isLoading={isLoadingState}
-          onUpgrade={handlePlanSelect}
-          onManagePlans={handleManagePlans}
-        />
-      </div>
-
-      {/* Additional Info */}
-      <div className="text-center mt-12">
-        <p className="text-sm text-muted-foreground mb-4">
-          All plans include a 14-day free trial. No setup fees. Cancel anytime.
-        </p>
-        <div className="flex justify-center gap-8 text-sm text-muted-foreground">
-          <span>✓ Secure payments</span>
-          <span>✓ Cancel anytime</span>
-          <span>✓ 24/7 support</span>
-        </div>
+        {/* Additional Info */}
+        <FadeIn delay={500}>
+          <div className="text-center mt-12">
+            <p className="text-sm text-muted-foreground mb-6">
+              All plans include a 14-day free trial. No setup fees. Cancel anytime.
+            </p>
+            <div className="flex flex-wrap justify-center gap-x-8 gap-y-4 text-sm text-muted-foreground font-medium">
+              <span className="flex items-center gap-2 text-green-600 dark:text-green-400">✓ Secure payments</span>
+              <span className="flex items-center gap-2 text-green-600 dark:text-green-400">✓ Cancel anytime</span>
+              <span className="flex items-center gap-2 text-green-600 dark:text-green-400">✓ 24/7 community support</span>
+              <span className="flex items-center gap-2 text-green-600 dark:text-green-400">✓ Money-back guarantee</span>
+            </div>
+          </div>
+        </FadeIn>
       </div>
     </section>
   );

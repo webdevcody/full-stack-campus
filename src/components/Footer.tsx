@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Music } from "lucide-react";
+import { Code } from "lucide-react";
 
 export function Footer() {
   return (
@@ -126,11 +126,11 @@ export function Footer() {
         <div className="mt-8 pt-8 border-t">
           <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
             <div className="flex items-center space-x-2">
-              <Music className="h-6 w-6" />
-              <span className="font-semibold">SoundStation</span>
+              <Code className="h-6 w-6 text-primary" />
+              <span className="font-semibold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">Full Stack Campus</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              © 2025 SoundStation. All rights reserved.
+              © 2025 Full Stack Campus. All rights reserved.
             </p>
           </div>
         </div>

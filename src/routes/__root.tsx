@@ -39,8 +39,9 @@ export const Route = createRootRouteWithContext<{
       },
       ...seo({
         title:
-          "TanStack Start | Type-Safe, Client-First, Full-Stack React Framework",
-        description: `TanStack Start is a type-safe, client-first, full-stack React framework. `,
+          "Become a Full Stack Engineer | Full Stack Developer Training & Community",
+        description: `Join our online community and learn how to become a full stack engineer. Master frontend and backend development, build real projects, and launch your software engineering career. Average full stack engineer salary: $115k-$150k.`,
+        keywords: "full stack engineer, full stack developer, software engineer, web developer, full stack developer training, learn full stack development, full stack engineer salary, how to become a full stack engineer, full stack developer career path, software engineering bootcamp, web development courses",
       }),
     ],
     links: [
