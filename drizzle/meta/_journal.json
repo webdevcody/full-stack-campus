@@ -57,6 +57,13 @@
       "when": 1756861195297,
       "tag": "0007_happy_spot",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1764175924708,
+      "tag": "0008_empty_kabuki",
+      "breakpoints": true
     }
   ]
 }

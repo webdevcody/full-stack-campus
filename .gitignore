@@ -10,6 +10,7 @@ yarn.lock
 .env
 .vercel
 .output
+dist/
 /build/
 /api/
 /server/build

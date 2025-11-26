@@ -1,36 +1,77 @@
-import { notFound } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
-import axios from "redaxios";
+import { z } from "zod";
+import { authenticatedMiddleware } from "./middleware";
+import {
+  createPost,
+  findPostById,
+  findPostByIdWithUser,
+  findRecentPosts,
+  findPostsByUserId,
+} from "~/data-access/posts";
 
-export type PostType = {
-  id: string;
-  title: string;
-  body: string;
-};
+export const POST_CATEGORIES = [
+  "general",
+  "question",
+  "discussion",
+  "announcement",
+  "feedback",
+  "showcase",
+] as const;
 
-export const fetchPostsFn = createServerFn({ method: "GET" }).handler(
-  async () => {
-    console.info("Fetching posts...");
-    return axios
-      .get<Array<PostType>>("https://jsonplaceholder.typicode.com/posts")
-      .then((r) => r.data.slice(0, 10));
-  }
-);
+export type PostCategory = (typeof POST_CATEGORIES)[number];
 
-export const fetchPostFn = createServerFn({ method: "GET" })
-  .inputValidator((d: string) => d)
+export const createPostFn = createServerFn({
+  method: "POST",
+})
+  .inputValidator(
+    z.object({
+      title: z
+        .string()
+        .max(200, "Title must be less than 200 characters")
+        .optional()
+        .or(z.literal("")),
+      content: z
+        .string()
+        .min(1, "Content is required")
+        .max(10000, "Content must be less than 10000 characters"),
+      category: z.enum(POST_CATEGORIES).optional().default("general"),
+    })
+  )
+  .middleware([authenticatedMiddleware])
+  .handler(async ({ data, context }) => {
+    const postData = {
+      id: crypto.randomUUID(),
+      title: data.title || null,
+      content: data.content,
+      category: data.category,
+      userId: context.userId,
+    };
+
+    const newPost = await createPost(postData);
+    return newPost;
+  });
+
+export const getPostByIdFn = createServerFn({
+  method: "GET",
+})
+  .inputValidator(z.object({ id: z.string() }))
+  .middleware([authenticatedMiddleware])
   .handler(async ({ data }) => {
-    console.info(`Fetching post with id ${data}...`);
-    const post = await axios
-      .get<PostType>(`https://jsonplaceholder.typicode.com/posts/${data}`)
-      .then((r) => r.data)
-      .catch((err) => {
-        console.error(err);
-        if (err.status === 404) {
-          throw notFound();
-        }
-        throw err;
-      });
-
+    const post = await findPostByIdWithUser(data.id);
+    if (!post || post.deletedAt) {
+      throw new Error("Post not found");
+    }
     return post;
+  });
+
+export const getRecentPostsFn = createServerFn()
+  .middleware([authenticatedMiddleware])
+  .handler(async () => {
+    return await findRecentPosts(20);
+  });
+
+export const getUserPostsFn = createServerFn()
+  .middleware([authenticatedMiddleware])
+  .handler(async ({ context }) => {
+    return await findPostsByUserId(context.userId);
   });

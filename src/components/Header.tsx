@@ -12,6 +12,7 @@ import {
   Music,
   ListMusic,
   Upload,
+  PenSquare,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useUserAvatar } from "~/hooks/useUserAvatar";
@@ -90,25 +91,46 @@ export function Header({ onOpenPlaylist }: HeaderProps = {}) {
               );
             })}
             {session && (
-              <Link
-                to="/upload"
-                className={`relative flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 group ${
-                  currentPath === "/upload"
-                    ? "text-foreground"
-                    : "text-foreground/70 hover:text-foreground"
-                }`}
-              >
-                <Upload className={`h-4 w-4 relative z-10 transition-transform ${
-                  currentPath === "/upload" ? "scale-110" : "group-hover:scale-110"
-                }`} />
-                <span className="relative z-10">Upload</span>
-                <span className={`absolute inset-0 rounded-lg bg-primary/5 transition-opacity duration-200 ${
-                  currentPath === "/upload" ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-                }`}></span>
-                <span className={`absolute inset-0 rounded-lg bg-gradient-to-r from-primary/10 to-purple-600/10 blur-sm transition-opacity duration-200 ${
-                  currentPath === "/upload" ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-                }`}></span>
-              </Link>
+              <>
+                <Link
+                  to="/upload"
+                  className={`relative flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 group ${
+                    currentPath === "/upload"
+                      ? "text-foreground"
+                      : "text-foreground/70 hover:text-foreground"
+                  }`}
+                >
+                  <Upload className={`h-4 w-4 relative z-10 transition-transform ${
+                    currentPath === "/upload" ? "scale-110" : "group-hover:scale-110"
+                  }`} />
+                  <span className="relative z-10">Upload</span>
+                  <span className={`absolute inset-0 rounded-lg bg-primary/5 transition-opacity duration-200 ${
+                    currentPath === "/upload" ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                  }`}></span>
+                  <span className={`absolute inset-0 rounded-lg bg-gradient-to-r from-primary/10 to-purple-600/10 blur-sm transition-opacity duration-200 ${
+                    currentPath === "/upload" ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                  }`}></span>
+                </Link>
+                <Link
+                  to="/community/create-post"
+                  className={`relative flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 group ${
+                    currentPath === "/community/create-post"
+                      ? "text-foreground"
+                      : "text-foreground/70 hover:text-foreground"
+                  }`}
+                >
+                  <PenSquare className={`h-4 w-4 relative z-10 transition-transform ${
+                    currentPath === "/community/create-post" ? "scale-110" : "group-hover:scale-110"
+                  }`} />
+                  <span className="relative z-10">Create Post</span>
+                  <span className={`absolute inset-0 rounded-lg bg-primary/5 transition-opacity duration-200 ${
+                    currentPath === "/community/create-post" ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                  }`}></span>
+                  <span className={`absolute inset-0 rounded-lg bg-gradient-to-r from-primary/10 to-purple-600/10 blur-sm transition-opacity duration-200 ${
+                    currentPath === "/community/create-post" ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                  }`}></span>
+                </Link>
+              </>
             )}
           </nav>
         </div>
@@ -200,6 +222,23 @@ export function Header({ onOpenPlaylist }: HeaderProps = {}) {
                       <span className="relative z-10">My Playlists</span>
                       <span className={`absolute inset-0 rounded-lg bg-primary/5 transition-opacity duration-200 ${
                         currentPath === "/playlists" ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                      }`}></span>
+                    </Link>
+                    <Link
+                      to="/community/create-post"
+                      className={`relative flex items-center gap-2 px-4 py-2.5 rounded-lg text-lg transition-all duration-200 group ${
+                        currentPath === "/community/create-post"
+                          ? "text-foreground"
+                          : "text-foreground/70 hover:text-foreground"
+                      }`}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <PenSquare className={`h-5 w-5 relative z-10 transition-transform ${
+                        currentPath === "/community/create-post" ? "scale-110" : "group-hover:scale-110"
+                      }`} />
+                      <span className="relative z-10">Create Post</span>
+                      <span className={`absolute inset-0 rounded-lg bg-primary/5 transition-opacity duration-200 ${
+                        currentPath === "/community/create-post" ? "opacity-100" : "opacity-0 group-hover:opacity-100"
                       }`}></span>
                     </Link>
                   </>

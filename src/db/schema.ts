@@ -147,6 +147,29 @@ export const playlistSong = pgTable("playlist_song", {
     .notNull(),
 });
 
+export const communityPost = pgTable("community_post", {
+  id: text("id").primaryKey(),
+  title: text("title"),
+  content: text("content").notNull(),
+  category: text("category").$default(() => "general"),
+  isPinned: boolean("is_pinned")
+    .$default(() => false)
+    .notNull(),
+  isQuestion: boolean("is_question")
+    .$default(() => false)
+    .notNull(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at")
+    .$defaultFn(() => /* @__PURE__ */ new Date())
+    .notNull(),
+  updatedAt: timestamp("updated_at")
+    .$defaultFn(() => /* @__PURE__ */ new Date())
+    .notNull(),
+  deletedAt: timestamp("deleted_at"),
+});
+
 export const songRelations = relations(song, ({ one, many }) => ({
   user: one(user, {
     fields: [song.userId],
@@ -186,10 +209,18 @@ export const playlistSongRelations = relations(playlistSong, ({ one }) => ({
   }),
 }));
 
+export const communityPostRelations = relations(communityPost, ({ one }) => ({
+  user: one(user, {
+    fields: [communityPost.userId],
+    references: [user.id],
+  }),
+}));
+
 export const userRelations = relations(user, ({ many }) => ({
   songs: many(song),
   hearts: many(heart),
   playlists: many(playlist),
+  communityPosts: many(communityPost),
 }));
 
 export type Song = typeof song.$inferSelect;
@@ -210,6 +241,12 @@ export type UpdatePlaylistData = Partial<
 
 export type PlaylistSong = typeof playlistSong.$inferSelect;
 export type CreatePlaylistSongData = typeof playlistSong.$inferInsert;
+
+export type CommunityPost = typeof communityPost.$inferSelect;
+export type CreateCommunityPostData = typeof communityPost.$inferInsert;
+export type UpdateCommunityPostData = Partial<
+  Omit<CreateCommunityPostData, "id" | "createdAt">
+>;
 
 export type SubscriptionPlan = "free" | "basic" | "pro";
 export type SubscriptionStatus = "active" | "canceled" | "past_due" | "unpaid" | "incomplete";

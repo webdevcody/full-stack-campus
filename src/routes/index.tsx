@@ -24,7 +24,8 @@ function Home() {
       "@context": "https://schema.org",
       "@type": "EducationalOrganization",
       name: "Full Stack Campus",
-      description: "Online community and training platform for aspiring full stack engineers",
+      description:
+        "Online community and training platform for aspiring full stack engineers",
       url: typeof window !== "undefined" ? window.location.origin : "",
     };
 
@@ -32,7 +33,8 @@ function Home() {
       "@context": "https://schema.org",
       "@type": "Course",
       name: "Full Stack Engineer Training Program",
-      description: "Comprehensive training program to become a full stack engineer, covering frontend and backend technologies",
+      description:
+        "Comprehensive training program to become a full stack engineer, covering frontend and backend technologies",
       provider: {
         "@type": "Organization",
         name: "Full Stack Campus",
@@ -78,7 +80,9 @@ function Home() {
     };
 
     // Remove existing structured data scripts if any
-    const existingScripts = document.querySelectorAll('script[type="application/ld+json"]');
+    const existingScripts = document.querySelectorAll(
+      'script[type="application/ld+json"]'
+    );
     existingScripts.forEach((script) => script.remove());
 
     // Add new structured data
@@ -95,7 +99,9 @@ function Home() {
 
     return () => {
       // Cleanup on unmount
-      const scripts = document.querySelectorAll('script[type="application/ld+json"]');
+      const scripts = document.querySelectorAll(
+        'script[type="application/ld+json"]'
+      );
       scripts.forEach((script) => script.remove());
     };
   }, []);

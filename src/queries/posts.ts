@@ -1,14 +1,24 @@
 import { queryOptions } from "@tanstack/react-query";
-import { fetchPostsFn, fetchPostFn } from "~/fn/posts";
+import {
+  getRecentPostsFn,
+  getPostByIdFn,
+  getUserPostsFn,
+} from "~/fn/posts";
 
-export const postsQueryOptions = () =>
+export const recentPostsQueryOptions = () =>
   queryOptions({
-    queryKey: ["posts"],
-    queryFn: () => fetchPostsFn(),
+    queryKey: ["community-posts", "recent"],
+    queryFn: () => getRecentPostsFn(),
   });
 
 export const postQueryOptions = (postId: string) =>
   queryOptions({
-    queryKey: ["post", postId],
-    queryFn: () => fetchPostFn({ data: postId }),
+    queryKey: ["community-post", postId],
+    queryFn: () => getPostByIdFn({ data: { id: postId } }),
+  });
+
+export const userPostsQueryOptions = () =>
+  queryOptions({
+    queryKey: ["community-posts", "user"],
+    queryFn: () => getUserPostsFn(),
   });
