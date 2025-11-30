@@ -8,7 +8,7 @@ import {
 } from "~/components/ui/dialog";
 import { Button } from "~/components/ui/button";
 import { ExternalLink, Calendar, Clock, User, Tag, Pencil, Trash2 } from "lucide-react";
-import type { EventWithUser } from "~/data-access/events";
+import type { EventWithUser } from "~/db/schema";
 import { EVENT_TYPE_LABELS } from "~/components/EventForm";
 import { UserAvatar } from "~/components/UserAvatar";
 import { ConfirmDeleteDialog } from "~/components/ConfirmDeleteDialog";

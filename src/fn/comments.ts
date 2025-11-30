@@ -11,6 +11,7 @@ import {
   countPostComments,
 } from "~/data-access/comments";
 import { findPostById } from "~/data-access/posts";
+import { createNotificationInternal } from "./notifications";
 
 export const createCommentFn = createServerFn({
   method: "POST",
@@ -50,6 +51,26 @@ export const createCommentFn = createServerFn({
     };
 
     const newComment = await createComment(commentData);
+
+    // Create notification for the post author if the commenter is not the author
+    if (post.userId !== context.userId) {
+      try {
+        await createNotificationInternal({
+          userId: post.userId,
+          type: "post-reply",
+          title: "New comment on your post",
+          content: data.content.length > 100 
+            ? data.content.substring(0, 100) + "..." 
+            : data.content,
+          relatedId: data.postId,
+          relatedType: "post",
+        });
+      } catch (error) {
+        // Don't fail the comment creation if notification fails
+        console.error("Failed to create notification:", error);
+      }
+    }
+
     return newComment;
   });
 

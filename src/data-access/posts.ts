@@ -5,12 +5,10 @@ import {
   user,
   type CommunityPost,
   type CreateCommunityPostData,
-  type User,
+  type PostWithUser,
 } from "~/db/schema";
 
-export type PostWithUser = CommunityPost & {
-  user: Pick<User, "id" | "name" | "image">;
-};
+export type { PostWithUser };
 
 export async function createPost(
   postData: CreateCommunityPostData

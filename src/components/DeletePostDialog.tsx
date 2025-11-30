@@ -9,7 +9,7 @@ import {
 } from "~/components/ui/dialog";
 import { Button } from "~/components/ui/button";
 import { useDeletePost } from "~/hooks/usePosts";
-import type { PostWithUser } from "~/data-access/posts";
+import type { PostWithUser } from "~/db/schema";
 
 interface DeletePostDialogProps {
   open: boolean;

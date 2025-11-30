@@ -9,7 +9,7 @@ import { EventDialog } from "~/components/EventDialog";
 import { useEvents } from "~/hooks/useEvents";
 import { useIsAdmin } from "~/hooks/usePosts";
 import { Home } from "lucide-react";
-import type { EventWithUser } from "~/data-access/events";
+import type { EventWithUser } from "~/db/schema";
 
 export const Route = createFileRoute("/calendar")({
   component: CalendarPage,

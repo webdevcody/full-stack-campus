@@ -8,7 +8,7 @@ import {
 } from "~/components/ui/dialog";
 import { Button } from "~/components/ui/button";
 import { useDeleteComment } from "~/hooks/useComments";
-import type { CommentWithUser } from "~/data-access/comments";
+import type { CommentWithUser } from "~/db/schema";
 
 interface DeleteCommentDialogProps {
   open: boolean;

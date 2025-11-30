@@ -20,7 +20,7 @@ import { Badge } from "~/components/ui/badge";
 import { recentPostsQueryOptions } from "~/queries/posts";
 import { postCommentCountQueryOptions } from "~/queries/comments";
 import { formatRelativeTime } from "~/utils/song";
-import type { PostWithUser } from "~/data-access/posts";
+import type { PostWithUser } from "~/db/schema";
 import { authClient } from "~/lib/auth-client";
 import { DeletePostDialog } from "~/components/DeletePostDialog";
 import { UserAvatar } from "~/components/UserAvatar";

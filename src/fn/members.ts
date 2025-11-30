@@ -1,7 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { authenticatedMiddleware } from "./middleware";
-import { getAllMembers, getMembersCount, type MemberFilters } from "~/data-access/members";
+import { getAllMembers, getMembersCount } from "~/data-access/members";
+import type { MemberFilters } from "~/db/schema";
 
 export const getMembersFn = createServerFn({
   method: "GET",

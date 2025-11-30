@@ -8,7 +8,7 @@ import {
 import { EventForm, type EventSubmitData } from "~/components/EventForm";
 import { useCreateEvent, useUpdateEvent } from "~/hooks/useEvents";
 import { dateToLocalDateTime, createDateWithTime } from "~/utils/date";
-import type { EventWithUser } from "~/data-access/events";
+import type { EventWithUser } from "~/db/schema";
 
 interface EventDialogProps {
   open: boolean;

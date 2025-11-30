@@ -1,6 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { authClient } from "~/lib/auth-client";
 import { ModeToggle } from "./mode-toggle";
+import { NotificationBell } from "./NotificationBell";
 import { Button, buttonVariants } from "./ui/button";
 import {
   LogOut,
@@ -296,6 +297,7 @@ export function Header() {
               </div>
             ) : session ? (
               <>
+                <NotificationBell />
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button

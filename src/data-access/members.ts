@@ -1,14 +1,8 @@
 import { ilike, desc, count } from "drizzle-orm";
 import { database } from "~/db";
-import { user, type User } from "~/db/schema";
+import { user, type MemberWithUser, type MemberFilters } from "~/db/schema";
 
-export type MemberWithUser = Pick<User, "id" | "name" | "image" | "createdAt">;
-
-export interface MemberFilters {
-  searchQuery?: string;
-  limit?: number;
-  offset?: number;
-}
+export type { MemberWithUser, MemberFilters };
 
 export async function getAllMembers(
   filters: MemberFilters = {}

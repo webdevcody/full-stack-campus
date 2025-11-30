@@ -4,7 +4,7 @@ import { Card, CardContent } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { UserAvatar } from "~/components/UserAvatar";
 import { formatRelativeTime } from "~/utils/song";
-import type { CommentWithUser } from "~/data-access/comments";
+import type { CommentWithUser } from "~/db/schema";
 import { CommentForm } from "./CommentForm";
 import { useCommentReplies } from "~/hooks/useComments";
 import { useCommentAttachments } from "~/hooks/useAttachments";

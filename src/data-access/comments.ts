@@ -5,12 +5,10 @@ import {
   user,
   type PostComment,
   type CreatePostCommentData,
-  type User,
+  type CommentWithUser,
 } from "~/db/schema";
 
-export type CommentWithUser = PostComment & {
-  user: Pick<User, "id" | "name" | "image">;
-};
+export type { CommentWithUser };
 
 export async function createComment(
   commentData: CreatePostCommentData

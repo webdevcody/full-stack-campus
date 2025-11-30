@@ -6,12 +6,10 @@ import {
   type Event,
   type CreateEventData,
   type UpdateEventData,
-  type User,
+  type EventWithUser,
 } from "~/db/schema";
 
-export type EventWithUser = Event & {
-  user: Pick<User, "id" | "name" | "image">;
-};
+export type { EventWithUser };
 
 export async function createEvent(
   eventData: CreateEventData

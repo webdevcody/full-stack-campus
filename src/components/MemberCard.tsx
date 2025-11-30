@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { UserAvatar } from "~/components/UserAvatar";
 import { Card, CardContent } from "~/components/ui/card";
-import type { MemberWithUser } from "~/data-access/members";
+import type { MemberWithUser } from "~/db/schema";
 import { formatRelativeTime } from "~/utils/song";
 
 interface MemberCardProps {

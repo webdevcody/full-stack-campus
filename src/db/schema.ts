@@ -245,55 +245,11 @@ export const event = pgTable("event", {
   updatedAt: timestamp("updated_at")
     .$defaultFn(() => /* @__PURE__ */ new Date())
     .notNull(),
-}, (table) => [
-  index("idx_event_start_time").on(table.startTime),
-  index("idx_event_created_by").on(table.createdBy),
-  index("idx_event_event_type").on(table.eventType),
-]);
-
-// User Profile - Extended profile information
-export const userProfile = pgTable("user_profile", {
-  id: text("id")
-    .primaryKey()
-    .references(() => user.id, { onDelete: "cascade" }),
-  bio: text("bio"),
-  skills: text("skills").array(), // Array of skills
-  lookingFor: text("looking_for"),
-  githubUrl: text("github_url"),
-  linkedinUrl: text("linkedin_url"),
-  websiteUrl: text("website_url"),
-  twitterUrl: text("twitter_url"),
-  isPublic: boolean("is_public")
-    .$default(() => true)
-    .notNull(),
-  updatedAt: timestamp("updated_at")
-    .$defaultFn(() => /* @__PURE__ */ new Date())
-    .notNull(),
-}, (table) => [
-  index("idx_user_profile_is_public").on(table.isPublic),
-]);
-
-// Portfolio Items - Projects users are working on
-export const portfolioItem = pgTable("portfolio_item", {
-  id: text("id").primaryKey(),
-  userId: text("user_id")
-    .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
-  title: text("title").notNull(),
-  description: text("description"),
-  imageKey: text("image_key"), // R2 storage key
-  url: text("url"), // Link to project
-  technologies: text("technologies").array(), // Array of tech used
-  createdAt: timestamp("created_at")
-    .$defaultFn(() => /* @__PURE__ */ new Date())
-    .notNull(),
-  updatedAt: timestamp("updated_at")
-    .$defaultFn(() => /* @__PURE__ */ new Date())
-    .notNull(),
-}, (table) => [
-  index("idx_portfolio_item_user_id").on(table.userId),
-  index("idx_portfolio_item_created_at").on(table.createdAt),
-]);
+}, (table) => ({
+  startTimeIdx: index("idx_event_start_time").on(table.startTime),
+  createdByIdx: index("idx_event_created_by").on(table.createdBy),
+  eventTypeIdx: index("idx_event_event_type").on(table.eventType),
+}));
 
 export const songRelations = relations(song, ({ one, many }) => ({
   user: one(user, {
@@ -396,7 +352,37 @@ export const eventRelations = relations(event, ({ one }) => ({
   }),
 }));
 
-export const userRelations = relations(user, ({ one, many }) => ({
+export const notification = pgTable("notification", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  type: text("type").notNull(), // 'new-message', 'post-reply', 'post-like', 'new-lesson', 'event-reminder', 'admin-post'
+  title: text("title").notNull(),
+  content: text("content"),
+  relatedId: text("related_id"), // postId, messageId, moduleId, etc.
+  relatedType: text("related_type"), // 'post', 'message', 'module', 'event'
+  isRead: boolean("is_read")
+    .$default(() => false)
+    .notNull(),
+  readAt: timestamp("read_at"),
+  createdAt: timestamp("created_at")
+    .$defaultFn(() => /* @__PURE__ */ new Date())
+    .notNull(),
+}, (table) => ({
+  userIdIdx: index("idx_notification_user_id").on(table.userId),
+  isReadIdx: index("idx_notification_is_read").on(table.userId, table.isRead),
+  createdAtIdx: index("idx_notification_created_at").on(table.userId, table.createdAt),
+}));
+
+export const notificationRelations = relations(notification, ({ one }) => ({
+  user: one(user, {
+    fields: [notification.userId],
+    references: [user.id],
+  }),
+}));
+
+export const userRelations = relations(user, ({ many }) => ({
   songs: many(song),
   hearts: many(heart),
   playlists: many(playlist),
@@ -404,25 +390,7 @@ export const userRelations = relations(user, ({ one, many }) => ({
   postComments: many(postComment),
   postReactions: many(postReaction),
   events: many(event),
-  profile: one(userProfile, {
-    fields: [user.id],
-    references: [userProfile.id],
-  }),
-  portfolioItems: many(portfolioItem),
-}));
-
-export const userProfileRelations = relations(userProfile, ({ one }) => ({
-  user: one(user, {
-    fields: [userProfile.id],
-    references: [user.id],
-  }),
-}));
-
-export const portfolioItemRelations = relations(portfolioItem, ({ one }) => ({
-  user: one(user, {
-    fields: [portfolioItem.userId],
-    references: [user.id],
-  }),
+  notifications: many(notification),
 }));
 
 export type Song = typeof song.$inferSelect;
@@ -475,14 +443,28 @@ export type UpdateEventData = Partial<
 
 export type EventType = "live-session" | "workshop" | "meetup" | "assignment-due";
 
-export type UserProfile = typeof userProfile.$inferSelect;
-export type CreateUserProfileData = typeof userProfile.$inferInsert;
-export type UpdateUserProfileData = Partial<
-  Omit<CreateUserProfileData, "id">
->;
+export type Notification = typeof notification.$inferSelect;
+export type CreateNotificationData = typeof notification.$inferInsert;
 
-export type PortfolioItem = typeof portfolioItem.$inferSelect;
-export type CreatePortfolioItemData = typeof portfolioItem.$inferInsert;
-export type UpdatePortfolioItemData = Partial<
-  Omit<CreatePortfolioItemData, "id" | "userId" | "createdAt">
->;
+export type NotificationType = "new-message" | "post-reply" | "post-like" | "new-lesson" | "event-reminder" | "admin-post";
+
+// Composite types for entities with user info - these are safe to import in client components
+export type PostWithUser = CommunityPost & {
+  user: Pick<User, "id" | "name" | "image">;
+};
+
+export type EventWithUser = Event & {
+  user: Pick<User, "id" | "name" | "image">;
+};
+
+export type CommentWithUser = PostComment & {
+  user: Pick<User, "id" | "name" | "image">;
+};
+
+export type MemberWithUser = Pick<User, "id" | "name" | "image" | "createdAt">;
+
+export interface MemberFilters {
+  searchQuery?: string;
+  limit?: number;
+  offset?: number;
+}

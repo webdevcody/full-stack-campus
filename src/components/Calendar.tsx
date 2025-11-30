@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
-import type { EventWithUser } from "~/data-access/events";
+import type { EventWithUser } from "~/db/schema";
 
 interface CalendarProps {
   events: EventWithUser[];

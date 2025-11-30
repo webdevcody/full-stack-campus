@@ -24,7 +24,7 @@ import {
   useCommentAttachments,
   useAttachmentUrls,
 } from "~/hooks/useAttachments";
-import type { CommentWithUser } from "~/data-access/comments";
+import type { CommentWithUser } from "~/db/schema";
 import { Loader2 } from "lucide-react";
 import { MediaUploadToggle } from "~/components/MediaUploadToggle";
 import { AttachmentPreviewGrid } from "~/components/AttachmentPreviewGrid";
