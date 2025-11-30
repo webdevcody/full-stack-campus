@@ -17,4 +17,3 @@ export const getUserByIdFn = createServerFn({
     const { email, ...publicUser } = user;
     return publicUser;
   });
-

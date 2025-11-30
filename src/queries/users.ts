@@ -6,4 +6,3 @@ export const userQueryOptions = (userId: string) =>
     queryKey: ["user", userId],
     queryFn: () => getUserByIdFn({ data: { userId } }),
   });
-
