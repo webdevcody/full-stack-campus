@@ -251,6 +251,50 @@ export const event = pgTable("event", {
   index("idx_event_event_type").on(table.eventType),
 ]);
 
+// User Profile - Extended profile information
+export const userProfile = pgTable("user_profile", {
+  id: text("id")
+    .primaryKey()
+    .references(() => user.id, { onDelete: "cascade" }),
+  bio: text("bio"),
+  skills: text("skills").array(), // Array of skills
+  lookingFor: text("looking_for"),
+  githubUrl: text("github_url"),
+  linkedinUrl: text("linkedin_url"),
+  websiteUrl: text("website_url"),
+  twitterUrl: text("twitter_url"),
+  isPublic: boolean("is_public")
+    .$default(() => true)
+    .notNull(),
+  updatedAt: timestamp("updated_at")
+    .$defaultFn(() => /* @__PURE__ */ new Date())
+    .notNull(),
+}, (table) => [
+  index("idx_user_profile_is_public").on(table.isPublic),
+]);
+
+// Portfolio Items - Projects users are working on
+export const portfolioItem = pgTable("portfolio_item", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  description: text("description"),
+  imageKey: text("image_key"), // R2 storage key
+  url: text("url"), // Link to project
+  technologies: text("technologies").array(), // Array of tech used
+  createdAt: timestamp("created_at")
+    .$defaultFn(() => /* @__PURE__ */ new Date())
+    .notNull(),
+  updatedAt: timestamp("updated_at")
+    .$defaultFn(() => /* @__PURE__ */ new Date())
+    .notNull(),
+}, (table) => [
+  index("idx_portfolio_item_user_id").on(table.userId),
+  index("idx_portfolio_item_created_at").on(table.createdAt),
+]);
+
 export const songRelations = relations(song, ({ one, many }) => ({
   user: one(user, {
     fields: [song.userId],
@@ -352,7 +396,7 @@ export const eventRelations = relations(event, ({ one }) => ({
   }),
 }));
 
-export const userRelations = relations(user, ({ many }) => ({
+export const userRelations = relations(user, ({ one, many }) => ({
   songs: many(song),
   hearts: many(heart),
   playlists: many(playlist),
@@ -360,6 +404,25 @@ export const userRelations = relations(user, ({ many }) => ({
   postComments: many(postComment),
   postReactions: many(postReaction),
   events: many(event),
+  profile: one(userProfile, {
+    fields: [user.id],
+    references: [userProfile.id],
+  }),
+  portfolioItems: many(portfolioItem),
+}));
+
+export const userProfileRelations = relations(userProfile, ({ one }) => ({
+  user: one(user, {
+    fields: [userProfile.id],
+    references: [user.id],
+  }),
+}));
+
+export const portfolioItemRelations = relations(portfolioItem, ({ one }) => ({
+  user: one(user, {
+    fields: [portfolioItem.userId],
+    references: [user.id],
+  }),
 }));
 
 export type Song = typeof song.$inferSelect;
@@ -411,3 +474,15 @@ export type UpdateEventData = Partial<
 >;
 
 export type EventType = "live-session" | "workshop" | "meetup" | "assignment-due";
+
+export type UserProfile = typeof userProfile.$inferSelect;
+export type CreateUserProfileData = typeof userProfile.$inferInsert;
+export type UpdateUserProfileData = Partial<
+  Omit<CreateUserProfileData, "id">
+>;
+
+export type PortfolioItem = typeof portfolioItem.$inferSelect;
+export type CreatePortfolioItemData = typeof portfolioItem.$inferInsert;
+export type UpdatePortfolioItemData = Partial<
+  Omit<CreatePortfolioItemData, "id" | "userId" | "createdAt">
+>;

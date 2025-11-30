@@ -33,6 +33,8 @@ import {
 } from "~/components/ui/dialog";
 import { Upload, User, Home, Trash2, AlertTriangle } from "lucide-react";
 import { assertAuthenticatedFn } from "~/fn/guards";
+import { ExtendedProfileForm } from "~/components/ExtendedProfileForm";
+import { PortfolioSection } from "~/components/PortfolioSection";
 
 export const Route = createFileRoute("/settings")({
   component: SettingsPage,
@@ -452,6 +454,16 @@ function SettingsPage() {
         {/* Profile Settings */}
         <section>
           <ProfileSettings />
+        </section>
+
+        {/* Extended Profile Settings */}
+        <section>
+          <ExtendedProfileForm />
+        </section>
+
+        {/* Portfolio Section */}
+        <section>
+          <PortfolioSection />
         </section>
 
         {/* Current Subscription Status */}

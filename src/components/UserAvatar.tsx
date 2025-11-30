@@ -6,13 +6,14 @@ interface UserAvatarProps {
   imageKey: string | null;
   name: string | null;
   className?: string;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
 }
 
 const sizeMap = {
   sm: "h-8 w-8",
   md: "h-10 w-10",
   lg: "h-12 w-12",
+  xl: "h-24 w-24",
 };
 
 export function UserAvatar({
