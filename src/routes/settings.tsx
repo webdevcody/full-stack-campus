@@ -82,7 +82,8 @@ function AccountDeletionSettings() {
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
               Permanently delete your account and all associated data. This
-              action cannot be undone. All your subscription data will be permanently removed.
+              action cannot be undone. All your subscription data will be
+              permanently removed.
             </p>
             <Button
               variant="destructive"

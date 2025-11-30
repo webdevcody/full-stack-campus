@@ -7,8 +7,15 @@ import {
   userPostsQueryOptions,
   isAdminQueryOptions,
 } from "~/queries/posts";
-import { createPostFn, updatePostFn, deletePostFn, pinPostFn, type PostCategory } from "~/fn/posts";
+import {
+  createPostFn,
+  updatePostFn,
+  deletePostFn,
+  pinPostFn,
+  type PostCategory,
+} from "~/fn/posts";
 import { savePostAttachmentsFn } from "~/fn/attachments";
+import { updatePostAttachments } from "~/utils/attachments";
 import { getErrorMessage } from "~/utils/error";
 import type { MediaUploadResult } from "~/utils/storage/media-helpers";
 
@@ -96,12 +103,33 @@ export function useCreatePost() {
 }
 
 // Hook for updating posts
+interface UpdatePostData {
+  id: string;
+  title?: string;
+  content: string;
+  category?: PostCategory;
+  newAttachments?: MediaUploadResult[];
+  deletedAttachmentIds?: string[];
+}
+
 export function useUpdatePost() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: Parameters<typeof updatePostFn>[0]["data"]) =>
-      updatePostFn({ data }),
+    mutationFn: async (data: UpdatePostData) => {
+      const { newAttachments, deletedAttachmentIds, ...postData } = data;
+
+      // Update the post
+      const updatedPost = await updatePostFn({ data: postData });
+
+      // Update attachments (delete removed, add new)
+      await updatePostAttachments(updatedPost.id, {
+        newAttachments,
+        deletedAttachmentIds,
+      });
+
+      return updatedPost;
+    },
     onSuccess: (updatedPost) => {
       toast.success("Post updated successfully", {
         description: "Your changes have been saved.",
@@ -110,6 +138,9 @@ export function useUpdatePost() {
       queryClient.invalidateQueries({ queryKey: ["community-posts"] });
       queryClient.invalidateQueries({
         queryKey: ["community-post", updatedPost.id],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["post-attachments", updatedPost.id],
       });
     },
     onError: (error) => {

@@ -11,6 +11,7 @@ import {
   deleteCommentFn,
 } from "~/fn/comments";
 import { saveCommentAttachmentsFn } from "~/fn/attachments";
+import { updateCommentAttachments } from "~/utils/attachments";
 import { getErrorMessage } from "~/utils/error";
 import type { MediaUploadResult } from "~/utils/storage/media-helpers";
 
@@ -103,17 +104,39 @@ export function useCreateComment() {
   });
 }
 
+interface UpdateCommentData {
+  id: string;
+  content: string;
+  newAttachments?: MediaUploadResult[];
+  deletedAttachmentIds?: string[];
+}
+
 export function useUpdateComment() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: Parameters<typeof updateCommentFn>[0]["data"]) =>
-      updateCommentFn({ data }),
-    onSuccess: () => {
+    mutationFn: async (data: UpdateCommentData) => {
+      const { newAttachments, deletedAttachmentIds, ...commentData } = data;
+
+      // Update the comment
+      const updatedComment = await updateCommentFn({ data: commentData });
+
+      // Update attachments (delete removed, add new)
+      await updateCommentAttachments(updatedComment.id, {
+        newAttachments,
+        deletedAttachmentIds,
+      });
+
+      return updatedComment;
+    },
+    onSuccess: (updatedComment) => {
       toast.success("Comment updated successfully");
       // Invalidate all comment queries to refresh the data
       queryClient.invalidateQueries({ queryKey: ["post-comments"] });
       queryClient.invalidateQueries({ queryKey: ["comment-replies"] });
+      queryClient.invalidateQueries({
+        queryKey: ["comment-attachments", updatedComment.id],
+      });
     },
     onError: (error) => {
       toast.error("Failed to update comment", {

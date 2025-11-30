@@ -13,6 +13,8 @@ import { DeleteCommentDialog } from "./DeleteCommentDialog";
 import { CommentLikeButton } from "./CommentLikeButton";
 import { MediaGallery } from "./MediaGallery";
 
+const MAX_VISIBLE_COMMENT_ATTACHMENTS = 5;
+
 interface CommentItemProps {
   comment: CommentWithUser;
   postId: string;
@@ -67,10 +69,14 @@ export function CommentItem({
                 </span>
                 <span className="text-xs text-muted-foreground flex items-center gap-1">
                   <Clock className="h-3 w-3" />
-                  {formatRelativeTime(new Date(comment.createdAt).toISOString())}
+                  {formatRelativeTime(
+                    new Date(comment.createdAt).toISOString()
+                  )}
                 </span>
                 {isEdited && (
-                  <span className="text-xs text-muted-foreground">(edited)</span>
+                  <span className="text-xs text-muted-foreground">
+                    (edited)
+                  </span>
                 )}
               </div>
               <p className="text-sm text-foreground mt-1 whitespace-pre-wrap break-words">
@@ -81,8 +87,9 @@ export function CommentItem({
                 <div className="mt-2">
                   <MediaGallery
                     attachments={attachments}
-                    size="sm"
-                    maxVisible={4}
+                    size="md"
+                    maxVisible={MAX_VISIBLE_COMMENT_ATTACHMENTS}
+                    layout="thumbnails"
                   />
                 </div>
               )}

@@ -98,88 +98,93 @@ function PostCard({ post, isAdmin }: { post: PostWithUser; isAdmin: boolean }) {
 
   return (
     <>
-      <article className="bg-card rounded-xl shadow-sm border border-border overflow-hidden hover:shadow-lg hover:border-border/60 transition-all duration-200 group relative">
-        <Link
-          to="/community/post/$postId"
-          params={{ postId: post.id }}
-          className="block p-5 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-xl"
-        >
-          <div className="flex items-start gap-4">
-            <UserAvatar
-              imageKey={post.user.image}
-              name={post.user.name}
-              size="md"
-              className="shrink-0"
-            />
+      <article className="bg-card rounded-xl shadow-sm border border-border overflow-hidden hover:shadow-md transition-all duration-200 group relative p-5">
+        <div className="flex items-start gap-4">
+          <UserAvatar
+            imageKey={post.user.image}
+            name={post.user.name}
+            size="md"
+            className="shrink-0"
+          />
 
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap mb-2">
-                <span className="font-medium text-sm">{post.user.name}</span>
-                <span className="text-muted-foreground text-xs">
-                  {formatRelativeTime(new Date(post.createdAt).toISOString())}
-                </span>
-                {post.isPinned && (
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap mb-2">
+              <span className="font-medium text-sm">{post.user.name}</span>
+              <span className="text-muted-foreground text-xs">
+                {formatRelativeTime(new Date(post.createdAt).toISOString())}
+              </span>
+              {post.isPinned && (
+                <Badge
+                  variant="secondary"
+                  className="text-xs px-1.5 py-0 gap-1"
+                >
+                  <Pin className="h-3 w-3" />
+                  Pinned
+                </Badge>
+              )}
+            </div>
+
+            {post.title && (
+              <Link
+                to="/community/post/$postId"
+                params={{ postId: post.id }}
+                className="block"
+              >
+                <h3 className="font-semibold text-base leading-tight mb-2 hover:text-primary transition-colors line-clamp-2">
+                  {post.title}
+                </h3>
+              </Link>
+            )}
+
+            <p className="text-muted-foreground text-sm leading-relaxed line-clamp-3 mb-3">
+              {truncateContent(post.content)}
+            </p>
+
+            {/* Post Attachments */}
+            {attachments.length > 0 && (
+              <div className="mb-3">
+                <MediaGallery
+                  attachments={attachments}
+                  size="md"
+                  maxVisible={4}
+                  layout="thumbnails"
+                />
+              </div>
+            )}
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 flex-wrap">
+                {post.category && (
                   <Badge
-                    variant="secondary"
-                    className="text-xs px-1.5 py-0 gap-1"
+                    variant="outline"
+                    className={`text-xs capitalize ${getCategoryColor(post.category)}`}
                   >
-                    <Pin className="h-3 w-3" />
-                    Pinned
+                    {post.category}
+                  </Badge>
+                )}
+                {post.isQuestion && (
+                  <Badge
+                    variant="outline"
+                    className="text-xs bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20"
+                  >
+                    Question
                   </Badge>
                 )}
               </div>
-
-              {post.title && (
-                <h3 className="font-semibold text-base leading-tight mb-2 group-hover:text-primary transition-colors line-clamp-2">
-                  {post.title}
-                </h3>
-              )}
-
-              <p className="text-muted-foreground text-sm leading-relaxed line-clamp-3 mb-3">
-                {truncateContent(post.content)}
-              </p>
-
-              {/* Post Attachments */}
-              {attachments.length > 0 && (
-                <div className="mb-3" onClick={(e) => e.stopPropagation()}>
-                  <MediaGallery
-                    attachments={attachments}
-                    size="sm"
-                    maxVisible={4}
-                  />
-                </div>
-              )}
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 flex-wrap">
-                  {post.category && (
-                    <Badge
-                      variant="outline"
-                      className={`text-xs capitalize ${getCategoryColor(post.category)}`}
-                    >
-                      {post.category}
-                    </Badge>
-                  )}
-                  {post.isQuestion && (
-                    <Badge
-                      variant="outline"
-                      className="text-xs bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20"
-                    >
-                      Question
-                    </Badge>
-                  )}
-                </div>
-                <div className="flex items-center gap-3">
-                  <PostLikeButton postId={post.id} size="sm" />
-                  <div className="flex items-center gap-1 text-muted-foreground text-xs">
-                    <MessageSquare className="h-3.5 w-3.5" />
-                    <span>{commentCount}</span>
-                  </div>
-                </div>
+              <div className="flex items-center gap-3">
+                <PostLikeButton postId={post.id} size="sm" />
+                <Link
+                  to="/community/post/$postId"
+                  params={{ postId: post.id }}
+                  className="flex items-center gap-1 text-muted-foreground text-xs hover:text-foreground transition-colors"
+                >
+                  <MessageSquare className="h-3.5 w-3.5" />
+                  <span>{commentCount}</span>
+                </Link>
               </div>
             </div>
           </div>
-        </Link>
+        </div>
 
         {(isOwner || isAdmin) && (
           <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">

@@ -1,15 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import {
-  Home,
-  Users,
-  Clock,
-  Trash2,
-  Edit,
-  Pin,
-  PinOff,
-} from "lucide-react";
+import { Home, Users, Clock, Trash2, Edit, Pin, PinOff } from "lucide-react";
 import { Page } from "~/components/Page";
 import { AppBreadcrumb } from "~/components/AppBreadcrumb";
 import { Badge } from "~/components/ui/badge";
@@ -26,6 +18,8 @@ import { PostLikeButton } from "~/components/PostLikeButton";
 import { MediaGallery } from "~/components/MediaGallery";
 import { usePostAttachments } from "~/hooks/useAttachments";
 
+const MAX_VISIBLE_ATTACHMENTS = 6;
+
 export const Route = createFileRoute("/community/post/$postId/")({
   loader: async ({ context: { queryClient }, params: { postId } }) => {
     // Use prefetchQuery instead of ensureQueryData to avoid throwing on errors
@@ -34,7 +28,6 @@ export const Route = createFileRoute("/community/post/$postId/")({
   },
   component: PostDetail,
 });
-
 
 function getCategoryVariant(
   category: string | null
@@ -73,7 +66,12 @@ function PostDetail() {
 
   const breadcrumbItems = [
     { label: "Home", href: "/" },
-    { label: "Community", href: "/community", search: { category: undefined }, icon: Users },
+    {
+      label: "Community",
+      href: "/community",
+      search: { category: undefined },
+      icon: Users,
+    },
     { label: post?.title || "Post" },
   ];
 
@@ -229,6 +227,8 @@ function PostDetail() {
               <MediaGallery
                 attachments={attachments}
                 size="lg"
+                maxVisible={MAX_VISIBLE_ATTACHMENTS}
+                layout="thumbnails"
                 className="mt-4"
               />
             )}

@@ -1,8 +1,8 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useState } from "react";
-import { Loader2, MessageSquarePlus, Save, ImagePlus, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Loader2, MessageSquarePlus, Save } from "lucide-react";
 import { POST_CATEGORIES } from "~/fn/posts";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
@@ -23,8 +23,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { MediaDropzone } from "~/components/MediaDropzone";
+import { MediaUploadToggle } from "~/components/MediaUploadToggle";
+import { AttachmentPreviewGrid } from "~/components/AttachmentPreviewGrid";
 import type { MediaUploadResult } from "~/utils/storage/media-helpers";
+import { revokeFilePreview } from "~/utils/storage/media-helpers";
+import type { PostAttachment } from "~/db/schema";
+import { useAttachmentUrls } from "~/hooks/useAttachments";
 
 export const postFormSchema = z.object({
   title: z
@@ -43,6 +47,7 @@ export type PostFormData = z.infer<typeof postFormSchema>;
 
 export interface PostFormDataWithAttachments extends PostFormData {
   attachments: MediaUploadResult[];
+  deletedAttachmentIds?: string[];
 }
 
 export const CATEGORY_LABELS: Record<(typeof POST_CATEGORIES)[number], string> =
@@ -76,6 +81,7 @@ interface PostFormProps {
   onCancel?: () => void;
   cancelLabel?: string;
   showMediaUpload?: boolean;
+  existingAttachments?: PostAttachment[];
 }
 
 export function PostForm({
@@ -87,9 +93,22 @@ export function PostForm({
   onCancel,
   cancelLabel = "Cancel",
   showMediaUpload = true,
+  existingAttachments = [],
 }: PostFormProps) {
   const [uploadedMedia, setUploadedMedia] = useState<MediaUploadResult[]>([]);
-  const [showDropzone, setShowDropzone] = useState(false);
+  const [deletedAttachmentIds, setDeletedAttachmentIds] = useState<string[]>(
+    []
+  );
+
+  // Filter out deleted attachments for display
+  const visibleExistingAttachments = existingAttachments.filter(
+    (att) => !deletedAttachmentIds.includes(att.id)
+  );
+
+  // Fetch URLs for existing attachments
+  const { data: existingUrlMap = {} } = useAttachmentUrls(
+    visibleExistingAttachments
+  );
 
   const form = useForm<PostFormData>({
     resolver: zodResolver(postFormSchema),
@@ -101,27 +120,57 @@ export function PostForm({
     },
   });
 
+  // Cleanup preview URLs on unmount
+  useEffect(() => {
+    return () => {
+      uploadedMedia.forEach((media) => {
+        if (media.previewUrl) {
+          revokeFilePreview(media.previewUrl);
+        }
+      });
+    };
+  }, []);
+
   const handleUploadsComplete = (results: MediaUploadResult[]) => {
     setUploadedMedia((prev) => [...prev, ...results]);
   };
 
   const removeUploadedMedia = (id: string) => {
-    setUploadedMedia((prev) => prev.filter((m) => m.id !== id));
+    setUploadedMedia((prev) => {
+      const media = prev.find((m) => m.id === id);
+      // Revoke the preview URL when removing
+      if (media?.previewUrl) {
+        revokeFilePreview(media.previewUrl);
+      }
+      return prev.filter((m) => m.id !== id);
+    });
+  };
+
+  const removeExistingAttachment = (id: string) => {
+    setDeletedAttachmentIds((prev) => [...prev, id]);
   };
 
   const handleSubmit = async (data: PostFormData) => {
     await onSubmit({
       ...data,
       attachments: uploadedMedia,
+      deletedAttachmentIds:
+        deletedAttachmentIds.length > 0 ? deletedAttachmentIds : undefined,
+    });
+    // Cleanup preview URLs after successful submission
+    uploadedMedia.forEach((media) => {
+      if (media.previewUrl) {
+        revokeFilePreview(media.previewUrl);
+      }
     });
   };
 
+  const totalAttachments =
+    visibleExistingAttachments.length + uploadedMedia.length;
+
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(handleSubmit)}
-        className="space-y-6"
-      >
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <FormField
           control={form.control}
           name="category"
@@ -203,72 +252,31 @@ export function PostForm({
         {/* Media Upload Section */}
         {showMediaUpload && (
           <div className="space-y-3">
-            {/* Uploaded Media Preview */}
-            {uploadedMedia.length > 0 && (
-              <div className="space-y-2">
-                <p className="text-sm font-medium">Attached Media ({uploadedMedia.length})</p>
-                <div className="flex flex-wrap gap-2">
-                  {uploadedMedia.map((media) => (
-                    <div
-                      key={media.id}
-                      className="relative group w-20 h-20 rounded-lg overflow-hidden bg-muted"
-                    >
-                      {media.type === "video" ? (
-                        <div className="w-full h-full flex items-center justify-center bg-muted">
-                          <span className="text-xs text-muted-foreground">Video</span>
-                        </div>
-                      ) : (
-                        <div className="w-full h-full bg-muted flex items-center justify-center">
-                          <span className="text-xs text-muted-foreground">Image</span>
-                        </div>
-                      )}
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="icon"
-                        className="absolute top-1 right-1 h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={() => removeUploadedMedia(media.id)}
-                        disabled={isPending}
-                      >
-                        <X className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+            {/* Existing and Uploaded Media Preview */}
+            <AttachmentPreviewGrid
+              existingAttachments={visibleExistingAttachments}
+              uploadedAttachments={uploadedMedia}
+              existingUrlMap={existingUrlMap}
+              deletedAttachmentIds={deletedAttachmentIds}
+              size="lg"
+              showDelete={true}
+              onDeleteExisting={removeExistingAttachment}
+              onDeleteUploaded={removeUploadedMedia}
+              deleteDisabled={isPending}
+              label={totalAttachments > 0 ? "Attached Media" : undefined}
+            />
 
             {/* Toggle dropzone button or dropzone */}
-            {!showDropzone ? (
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full"
-                onClick={() => setShowDropzone(true)}
-                disabled={isPending}
-              >
-                <ImagePlus className="h-4 w-4 mr-2" />
-                Add Images or Videos
-              </Button>
-            ) : (
-              <div className="space-y-2">
-                <MediaDropzone
-                  onUploadsComplete={handleUploadsComplete}
-                  maxFiles={10 - uploadedMedia.length}
-                  disabled={isPending}
-                />
-                {uploadedMedia.length === 0 && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowDropzone(false)}
-                  >
-                    Cancel
-                  </Button>
-                )}
-              </div>
-            )}
+            <MediaUploadToggle
+              onUploadsComplete={handleUploadsComplete}
+              maxFiles={10}
+              currentAttachmentCount={totalAttachments}
+              disabled={isPending}
+              buttonVariant="outline"
+              buttonClassName="w-full"
+              buttonLabel="Add Images or Videos"
+              maxFilesReachedLabel="Maximum files reached"
+            />
           </div>
         )}
 
@@ -304,4 +312,3 @@ export function PostForm({
     </Form>
   );
 }
-

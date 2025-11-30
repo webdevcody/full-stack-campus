@@ -108,6 +108,7 @@ export function MediaDropzone({
 
     setIsUploading(true);
     const results: MediaUploadResult[] = [];
+    const completedUploads: PendingUpload[] = [];
 
     for (const upload of pendingFiles) {
       try {
@@ -126,13 +127,19 @@ export function MediaDropzone({
           );
         });
 
-        results.push(result);
+        // Include preview URL in the result for display in parent component
+        const resultWithPreview: MediaUploadResult = {
+          ...result,
+          previewUrl: upload.preview,
+        };
+        results.push(resultWithPreview);
+        completedUploads.push(upload);
 
         // Update status to completed
         setPendingUploads((prev) =>
           prev.map((u) =>
             u.id === upload.id
-              ? { ...u, status: "completed" as const, progress: 100, result }
+              ? { ...u, status: "completed" as const, progress: 100, result: resultWithPreview }
               : u
           )
         );
@@ -153,15 +160,8 @@ export function MediaDropzone({
 
     if (results.length > 0) {
       onUploadsComplete(results);
-      // Clear completed uploads
-      setPendingUploads((prev) => {
-        prev
-          .filter((u) => u.status === "completed")
-          .forEach((u) => {
-            if (u.preview) revokeFilePreview(u.preview);
-          });
-        return prev.filter((u) => u.status !== "completed");
-      });
+      // Clear completed uploads from state (don't revoke preview URLs - parent will handle that)
+      setPendingUploads((prev) => prev.filter((u) => u.status !== "completed"));
     }
   };
 

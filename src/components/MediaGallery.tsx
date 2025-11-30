@@ -10,6 +10,7 @@ interface MediaGalleryProps {
   className?: string;
   maxVisible?: number;
   size?: "sm" | "md" | "lg";
+  layout?: "gallery" | "thumbnails";
 }
 
 function MediaThumbnail({
@@ -98,6 +99,7 @@ export function MediaGallery({
   className,
   maxVisible = 4,
   size = "md",
+  layout = "gallery",
 }: MediaGalleryProps) {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
@@ -114,10 +116,54 @@ export function MediaGallery({
     lg: "h-48",
   };
 
+  const thumbnailSizeClasses = {
+    sm: "w-12 h-12",
+    md: "w-16 h-16",
+    lg: "w-20 h-20",
+  };
+
   const handleOpenLightbox = (index: number) => {
     setLightboxIndex(index);
     setLightboxOpen(true);
   };
+
+  // Thumbnails layout - small squares in a row
+  if (layout === "thumbnails") {
+    return (
+      <>
+        <div className={cn("flex flex-wrap gap-2", className)}>
+          {visibleAttachments.map((attachment, index) => (
+            <div key={attachment.id} className="relative">
+              <MediaThumbnail
+                attachment={attachment}
+                url={urlMap?.[attachment.fileKey]}
+                onClick={() => handleOpenLightbox(index)}
+                className={cn("rounded-lg", thumbnailSizeClasses[size])}
+              />
+              {/* Overlay for showing remaining count on last visible item */}
+              {index === maxVisible - 1 && remainingCount > 0 && (
+                <button
+                  className="absolute inset-0 bg-black/60 flex items-center justify-center cursor-pointer hover:bg-black/70 transition-colors rounded-lg"
+                  onClick={() => handleOpenLightbox(index)}
+                >
+                  <span className="text-white text-sm font-bold">
+                    +{remainingCount}
+                  </span>
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+        <MediaLightbox
+          attachments={attachments}
+          initialIndex={lightboxIndex}
+          open={lightboxOpen}
+          onClose={() => setLightboxOpen(false)}
+          urlMap={urlMap}
+        />
+      </>
+    );
+  }
 
   // Single image layout
   if (attachments.length === 1) {

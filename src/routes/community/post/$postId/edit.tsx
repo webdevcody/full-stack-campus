@@ -9,6 +9,7 @@ import { AppBreadcrumb } from "~/components/AppBreadcrumb";
 import { PostForm, type PostFormDataWithAttachments } from "~/components/PostForm";
 import { authClient } from "~/lib/auth-client";
 import { POST_CATEGORIES, type PostCategory } from "~/fn/posts";
+import { usePostAttachments } from "~/hooks/useAttachments";
 
 export const Route = createFileRoute("/community/post/$postId/edit")({
   loader: async ({ context: { queryClient }, params: { postId } }) => {
@@ -21,6 +22,7 @@ function EditPost() {
   const { postId } = Route.useParams();
   const navigate = useNavigate();
   const { data: post, isLoading, error } = useQuery(postQueryOptions(postId));
+  const { data: existingAttachments = [], isLoading: attachmentsLoading } = usePostAttachments(postId);
   const { data: session } = authClient.useSession();
   const updatePostMutation = useUpdatePost();
 
@@ -36,13 +38,14 @@ function EditPost() {
   const handleSubmit = async (data: PostFormDataWithAttachments) => {
     if (!postId) return;
 
-    // For now, we don't handle attachment updates in edit mode
-    const { attachments, ...postData } = data;
+    const { attachments, deletedAttachmentIds, ...postData } = data;
 
     updatePostMutation.mutate(
       {
         id: postId,
         ...postData,
+        newAttachments: attachments,
+        deletedAttachmentIds,
       },
       {
         onSuccess: () => {
@@ -56,7 +59,7 @@ function EditPost() {
     navigate({ to: `/community/post/${postId}` });
   };
 
-  if (isLoading) {
+  if (isLoading || attachmentsLoading) {
     return (
       <Page>
         <div className="space-y-6 max-w-4xl mx-auto">
@@ -141,7 +144,8 @@ function EditPost() {
             submitIcon={<Save className="h-4 w-4 mr-2" />}
             onCancel={handleCancel}
             cancelLabel="Cancel"
-            showMediaUpload={false}
+            showMediaUpload={true}
+            existingAttachments={existingAttachments}
           />
         </div>
       </div>

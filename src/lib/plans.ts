@@ -6,30 +6,21 @@ export const SUBSCRIPTION_PLANS = {
     plan: "free" as const,
     price: 0,
     priceId: null,
-    features: [
-      "Community support",
-    ],
+    features: ["Community support"],
   },
   BASIC: {
     name: "Basic",
     plan: "basic" as const,
     price: 999, // $9.99 in cents
     priceId: publicEnv.STRIPE_BASIC_PRICE_ID,
-    features: [
-      "Basic analytics",
-      "Email support",
-    ],
+    features: ["Basic analytics", "Email support"],
   },
   PRO: {
     name: "Pro",
     plan: "pro" as const,
     price: 2999, // $29.99 in cents
     priceId: publicEnv.STRIPE_PRO_PRICE_ID,
-    features: [
-      "Advanced analytics",
-      "Priority support",
-      "Custom branding",
-    ],
+    features: ["Advanced analytics", "Priority support", "Custom branding"],
   },
 } as const;
 

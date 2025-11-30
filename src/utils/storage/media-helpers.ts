@@ -14,6 +14,7 @@ export interface MediaUploadResult {
   fileSize: number;
   mimeType: string;
   type: AttachmentType;
+  previewUrl?: string; // Local blob URL for preview before form submission
 }
 
 export interface PendingUpload {
