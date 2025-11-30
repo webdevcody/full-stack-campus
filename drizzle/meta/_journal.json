@@ -85,6 +85,13 @@
       "when": 1764516166125,
       "tag": "0011_talented_chameleon",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1764527934504,
+      "tag": "0012_concerned_shocker",
+      "breakpoints": true
     }
   ]
 }

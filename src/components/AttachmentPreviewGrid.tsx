@@ -49,7 +49,8 @@ export function AttachmentPreviewGrid({
     (att) => !deletedAttachmentIds.includes(att.id)
   );
 
-  const totalAttachments = visibleExistingAttachments.length + uploadedAttachments.length;
+  const totalAttachments =
+    visibleExistingAttachments.length + uploadedAttachments.length;
 
   if (isLoading) {
     return (
@@ -103,4 +104,3 @@ export function AttachmentPreviewGrid({
     </div>
   );
 }
-

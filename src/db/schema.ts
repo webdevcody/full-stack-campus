@@ -4,6 +4,7 @@ import {
   timestamp,
   boolean,
   integer,
+  index,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -225,6 +226,31 @@ export const postAttachment = pgTable("post_attachment", {
     .notNull(),
 });
 
+export const event = pgTable("event", {
+  id: text("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description"),
+  startTime: timestamp("start_time").notNull(),
+  endTime: timestamp("end_time"),
+  eventLink: text("event_link"), // Zoom, Google Meet, etc.
+  eventType: text("event_type")
+    .$default(() => "live-session")
+    .notNull(), // 'live-session', 'workshop', 'meetup', 'assignment-due'
+  createdBy: text("created_by")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at")
+    .$defaultFn(() => /* @__PURE__ */ new Date())
+    .notNull(),
+  updatedAt: timestamp("updated_at")
+    .$defaultFn(() => /* @__PURE__ */ new Date())
+    .notNull(),
+}, (table) => [
+  index("idx_event_start_time").on(table.startTime),
+  index("idx_event_created_by").on(table.createdBy),
+  index("idx_event_event_type").on(table.eventType),
+]);
+
 export const songRelations = relations(song, ({ one, many }) => ({
   user: one(user, {
     fields: [song.userId],
@@ -319,6 +345,13 @@ export const postReactionRelations = relations(postReaction, ({ one }) => ({
   }),
 }));
 
+export const eventRelations = relations(event, ({ one }) => ({
+  user: one(user, {
+    fields: [event.createdBy],
+    references: [user.id],
+  }),
+}));
+
 export const userRelations = relations(user, ({ many }) => ({
   songs: many(song),
   hearts: many(heart),
@@ -326,6 +359,7 @@ export const userRelations = relations(user, ({ many }) => ({
   communityPosts: many(communityPost),
   postComments: many(postComment),
   postReactions: many(postReaction),
+  events: many(event),
 }));
 
 export type Song = typeof song.$inferSelect;
@@ -369,3 +403,11 @@ export type AttachmentType = "image" | "video";
 
 export type SubscriptionPlan = "free" | "basic" | "pro";
 export type SubscriptionStatus = "active" | "canceled" | "past_due" | "unpaid" | "incomplete";
+
+export type Event = typeof event.$inferSelect;
+export type CreateEventData = typeof event.$inferInsert;
+export type UpdateEventData = Partial<
+  Omit<CreateEventData, "id" | "createdAt" | "createdBy">
+>;
+
+export type EventType = "live-session" | "workshop" | "meetup" | "assignment-due";

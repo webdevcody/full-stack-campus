@@ -10,6 +10,7 @@ import {
   Code,
   Users,
   UserCircle,
+  CalendarDays,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useUserAvatar } from "~/hooks/useUserAvatar";
@@ -35,6 +36,12 @@ const membersLink = {
   title: "Members",
   href: "/members",
   icon: UserCircle,
+};
+
+const calendarLink = {
+  title: "Calendar",
+  href: "/calendar",
+  icon: CalendarDays,
 };
 
 export function Header() {
@@ -130,6 +137,41 @@ export function Header() {
                 }`}
               ></span>
             </Link>
+            <Link
+              to={calendarLink.href}
+              className={`relative flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 group ${
+                currentPath === calendarLink.href ||
+                currentPath.startsWith("/calendar")
+                  ? "text-foreground"
+                  : "text-foreground/70 hover:text-foreground"
+              }`}
+            >
+              <CalendarDays
+                className={`h-4 w-4 relative z-10 transition-transform ${
+                  currentPath === calendarLink.href ||
+                  currentPath.startsWith("/calendar")
+                    ? "scale-110"
+                    : "group-hover:scale-110"
+                }`}
+              />
+              <span className="relative z-10">{calendarLink.title}</span>
+              <span
+                className={`absolute inset-0 rounded-lg bg-primary/5 transition-opacity duration-200 ${
+                  currentPath === calendarLink.href ||
+                  currentPath.startsWith("/calendar")
+                    ? "opacity-100"
+                    : "opacity-0 group-hover:opacity-100"
+                }`}
+              ></span>
+              <span
+                className={`absolute inset-0 rounded-lg bg-gradient-to-r from-primary/10 to-purple-600/10 blur-sm transition-opacity duration-200 ${
+                  currentPath === calendarLink.href ||
+                  currentPath.startsWith("/calendar")
+                    ? "opacity-100"
+                    : "opacity-0 group-hover:opacity-100"
+                }`}
+              ></span>
+            </Link>
           </nav>
         </div>
 
@@ -208,6 +250,34 @@ export function Header() {
                     className={`absolute inset-0 rounded-lg bg-primary/5 transition-opacity duration-200 ${
                       currentPath === membersLink.href ||
                       currentPath.startsWith("/members")
+                        ? "opacity-100"
+                        : "opacity-0 group-hover:opacity-100"
+                    }`}
+                  ></span>
+                </Link>
+                <Link
+                  to={calendarLink.href}
+                  className={`relative flex items-center gap-2 px-4 py-2.5 rounded-lg text-lg transition-all duration-200 group ${
+                    currentPath === calendarLink.href ||
+                    currentPath.startsWith("/calendar")
+                      ? "text-foreground"
+                      : "text-foreground/70 hover:text-foreground"
+                  }`}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <CalendarDays
+                    className={`h-5 w-5 relative z-10 transition-transform ${
+                      currentPath === calendarLink.href ||
+                      currentPath.startsWith("/calendar")
+                        ? "scale-110"
+                        : "group-hover:scale-110"
+                    }`}
+                  />
+                  <span className="relative z-10">{calendarLink.title}</span>
+                  <span
+                    className={`absolute inset-0 rounded-lg bg-primary/5 transition-opacity duration-200 ${
+                      currentPath === calendarLink.href ||
+                      currentPath.startsWith("/calendar")
                         ? "opacity-100"
                         : "opacity-0 group-hover:opacity-100"
                     }`}

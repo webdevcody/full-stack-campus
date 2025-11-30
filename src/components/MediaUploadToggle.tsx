@@ -15,7 +15,13 @@ export interface MediaUploadToggleProps {
   /** Whether the component is disabled */
   disabled?: boolean;
   /** Button variant */
-  buttonVariant?: "default" | "outline" | "ghost" | "destructive" | "secondary" | "link";
+  buttonVariant?:
+    | "default"
+    | "outline"
+    | "ghost"
+    | "destructive"
+    | "secondary"
+    | "link";
   /** Button size */
   buttonSize?: "default" | "sm" | "lg" | "icon";
   /** Additional button className */
@@ -53,7 +59,7 @@ export function MediaUploadToggle({
   className,
 }: MediaUploadToggleProps) {
   const [internalShowDropzone, setInternalShowDropzone] = useState(false);
-  
+
   // Use controlled state if provided, otherwise use internal state
   const showDropzone = controlledShowDropzone ?? internalShowDropzone;
   const setShowDropzone = (value: boolean) => {
@@ -91,7 +97,10 @@ export function MediaUploadToggle({
           onUploadsComplete(results);
           // Auto-hide dropzone after successful upload if we have max files
           // Only auto-hide if using internal state (not controlled)
-          if (!onShowDropzoneChange && currentAttachmentCount + results.length >= maxFiles) {
+          if (
+            !onShowDropzoneChange &&
+            currentAttachmentCount + results.length >= maxFiles
+          ) {
             setShowDropzone(false);
           }
         }}
@@ -112,4 +121,3 @@ export function MediaUploadToggle({
     </div>
   );
 }
-

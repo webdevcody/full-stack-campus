@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { authenticatedMiddleware } from "./middleware";
+import { authenticatedMiddleware, assertAdminMiddleware } from "./middleware";
 import {
   createPost,
   findPostById,
@@ -170,15 +170,9 @@ export const pinPostFn = createServerFn({
       isPinned: z.boolean(),
     })
   )
-  .middleware([authenticatedMiddleware])
+  .middleware([assertAdminMiddleware])
   .handler(async ({ data, context }) => {
     const { id, isPinned } = data;
-
-    // Verify user is admin
-    const isAdmin = await isUserAdmin(context.userId);
-    if (!isAdmin) {
-      throw new Error("Unauthorized: Only admins can pin posts");
-    }
 
     // Check if the post exists
     const existingPost = await findPostById(id);

@@ -45,7 +45,7 @@ export function AttachmentThumbnail({
   // Determine which source we're using
   const isUploadResult = !!uploadResult;
   const attachmentData = uploadResult || attachment;
-  
+
   if (!attachmentData) {
     return null;
   }
@@ -73,10 +73,16 @@ export function AttachmentThumbnail({
               muted
             />
             <div className="absolute top-1 left-1 bg-black/60 rounded p-0.5">
-              <Film className={cn(
-                size === "sm" ? "h-2 w-2" : size === "md" ? "h-2.5 w-2.5" : "h-3 w-3",
-                "text-white"
-              )} />
+              <Film
+                className={cn(
+                  size === "sm"
+                    ? "h-2 w-2"
+                    : size === "md"
+                      ? "h-2.5 w-2.5"
+                      : "h-3 w-3",
+                  "text-white"
+                )}
+              />
             </div>
           </>
         ) : (
@@ -89,17 +95,25 @@ export function AttachmentThumbnail({
       ) : (
         <div className="w-full h-full flex items-center justify-center">
           {isUploadResult ? (
-            <span className={cn(
-              "text-xs text-muted-foreground",
-              size === "sm" && "text-[10px]"
-            )}>
+            <span
+              className={cn(
+                "text-xs text-muted-foreground",
+                size === "sm" && "text-[10px]"
+              )}
+            >
               {type === "video" ? "Video" : "Image"}
             </span>
           ) : (
-            <Loader2 className={cn(
-              "animate-spin text-muted-foreground",
-              size === "sm" ? "h-3 w-3" : size === "md" ? "h-3 w-3" : "h-4 w-4"
-            )} />
+            <Loader2
+              className={cn(
+                "animate-spin text-muted-foreground",
+                size === "sm"
+                  ? "h-3 w-3"
+                  : size === "md"
+                    ? "h-3 w-3"
+                    : "h-4 w-4"
+              )}
+            />
           )}
         </div>
       )}
@@ -118,9 +132,15 @@ export function AttachmentThumbnail({
             size === "sm" ? "h-4 w-4" : size === "md" ? "h-4 w-4" : "h-5 w-5"
           )}
         >
-          <X className={cn(
-            size === "sm" ? "h-2 w-2" : size === "md" ? "h-2.5 w-2.5" : "h-3 w-3"
-          )} />
+          <X
+            className={cn(
+              size === "sm"
+                ? "h-2 w-2"
+                : size === "md"
+                  ? "h-2.5 w-2.5"
+                  : "h-3 w-3"
+            )}
+          />
         </Button>
       )}
     </>
@@ -136,4 +156,3 @@ export function AttachmentThumbnail({
 
   return <div className={containerClasses}>{content}</div>;
 }
-
