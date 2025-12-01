@@ -14,7 +14,4 @@ export const privateEnv = {
 
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID!,
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET!,
-
-  // Admin Configuration
-  ADMIN_EMAILS: process.env.ADMIN_EMAILS || "",
 } as const;

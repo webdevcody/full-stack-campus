@@ -29,7 +29,8 @@ export function MemberCard({ member }: MemberCardProps) {
                 {member.name || "Anonymous"}
               </h3>
               <p className="text-muted-foreground text-xs">
-                Joined {formatRelativeTime(new Date(member.createdAt).toISOString())}
+                Joined{" "}
+                {formatRelativeTime(new Date(member.createdAt).toISOString())}
               </p>
             </div>
           </div>
@@ -38,4 +39,3 @@ export function MemberCard({ member }: MemberCardProps) {
     </Card>
   );
 }
-

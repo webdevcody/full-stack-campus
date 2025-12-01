@@ -44,7 +44,7 @@ export const Route = createFileRoute("/community/")({
     };
   },
   loaderDeps: ({ search: { category } }) => ({ category }),
-  loader: ({ context, deps: { category } }) => {
+  loader: async ({ context, deps: { category } }) => {
     const { queryClient } = context;
     queryClient.ensureQueryData(recentPostsQueryOptions(category));
   },

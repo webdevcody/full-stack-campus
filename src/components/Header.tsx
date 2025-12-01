@@ -1,7 +1,8 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { authClient } from "~/lib/auth-client";
 import { ModeToggle } from "./mode-toggle";
 import { NotificationBell } from "./NotificationBell";
+import { MessagesBell } from "./MessagesBell";
 import { Button, buttonVariants } from "./ui/button";
 import {
   LogOut,
@@ -12,6 +13,9 @@ import {
   Users,
   UserCircle,
   CalendarDays,
+  MessageSquare,
+  BookOpen,
+  Bell,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useUserAvatar } from "~/hooks/useUserAvatar";
@@ -45,29 +49,88 @@ const calendarLink = {
   icon: CalendarDays,
 };
 
+const messagesLink = {
+  title: "Messages",
+  href: "/messages",
+  icon: MessageSquare,
+};
+
+const notificationsLink = {
+  title: "Notifications",
+  href: "/notifications",
+  icon: Bell,
+};
+
+const classroomLink = {
+  title: "Classroom",
+  href: "/classroom",
+  icon: BookOpen,
+};
+
 export function Header() {
   const { data: session, isPending } = authClient.useSession();
   const routerState = useRouterState();
   const currentPath = routerState.location.pathname;
+  const navigate = useNavigate();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { avatarUrl } = useUserAvatar();
+
+  const handleSignOut = async () => {
+    await authClient.signOut();
+    navigate({ to: "/" });
+  };
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="max-w-screen-2xl mx-auto px-8 flex h-14 items-center">
         <div className="mr-4 flex gap-16">
           <Link to="/" className="mr-6 flex items-center space-x-2 group">
-            <div className="relative">
+            <div className="relative shrink-0">
               <Code className="h-5 w-5 text-primary transition-transform group-hover:scale-110" />
               <div className="absolute inset-0 bg-primary/20 rounded-full blur-sm opacity-0 group-hover:opacity-100 transition-opacity"></div>
             </div>
-            <span className="hidden font-bold sm:inline-block bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+            <span className="hidden font-semibold text-sm sm:inline-block bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent whitespace-nowrap leading-none">
               Full Stack Campus
             </span>
           </Link>
 
           <nav className="hidden md:flex items-center gap-2 text-sm">
+            <Link
+              to={classroomLink.href}
+              className={`relative flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 group ${
+                currentPath === classroomLink.href ||
+                currentPath.startsWith("/classroom")
+                  ? "text-foreground"
+                  : "text-foreground/70 hover:text-foreground"
+              }`}
+            >
+              <BookOpen
+                className={`h-4 w-4 relative z-10 transition-transform ${
+                  currentPath === classroomLink.href ||
+                  currentPath.startsWith("/classroom")
+                    ? "scale-110"
+                    : "group-hover:scale-110"
+                }`}
+              />
+              <span className="relative z-10">{classroomLink.title}</span>
+              <span
+                className={`absolute inset-0 rounded-lg bg-primary/5 transition-opacity duration-200 ${
+                  currentPath === classroomLink.href ||
+                  currentPath.startsWith("/classroom")
+                    ? "opacity-100"
+                    : "opacity-0 group-hover:opacity-100"
+                }`}
+              ></span>
+              <span
+                className={`absolute inset-0 rounded-lg bg-gradient-to-r from-primary/10 to-purple-600/10 blur-sm transition-opacity duration-200 ${
+                  currentPath === classroomLink.href ||
+                  currentPath.startsWith("/classroom")
+                    ? "opacity-100"
+                    : "opacity-0 group-hover:opacity-100"
+                }`}
+              ></span>
+            </Link>
             <Link
               to={communityLink.href}
               className={`relative flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 group ${
@@ -98,41 +161,6 @@ export function Header() {
                 className={`absolute inset-0 rounded-lg bg-gradient-to-r from-primary/10 to-purple-600/10 blur-sm transition-opacity duration-200 ${
                   currentPath === communityLink.href ||
                   currentPath.startsWith("/community")
-                    ? "opacity-100"
-                    : "opacity-0 group-hover:opacity-100"
-                }`}
-              ></span>
-            </Link>
-            <Link
-              to={membersLink.href}
-              className={`relative flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 group ${
-                currentPath === membersLink.href ||
-                currentPath.startsWith("/members")
-                  ? "text-foreground"
-                  : "text-foreground/70 hover:text-foreground"
-              }`}
-            >
-              <UserCircle
-                className={`h-4 w-4 relative z-10 transition-transform ${
-                  currentPath === membersLink.href ||
-                  currentPath.startsWith("/members")
-                    ? "scale-110"
-                    : "group-hover:scale-110"
-                }`}
-              />
-              <span className="relative z-10">{membersLink.title}</span>
-              <span
-                className={`absolute inset-0 rounded-lg bg-primary/5 transition-opacity duration-200 ${
-                  currentPath === membersLink.href ||
-                  currentPath.startsWith("/members")
-                    ? "opacity-100"
-                    : "opacity-0 group-hover:opacity-100"
-                }`}
-              ></span>
-              <span
-                className={`absolute inset-0 rounded-lg bg-gradient-to-r from-primary/10 to-purple-600/10 blur-sm transition-opacity duration-200 ${
-                  currentPath === membersLink.href ||
-                  currentPath.startsWith("/members")
                     ? "opacity-100"
                     : "opacity-0 group-hover:opacity-100"
                 }`}
@@ -173,6 +201,41 @@ export function Header() {
                 }`}
               ></span>
             </Link>
+            <Link
+              to={membersLink.href}
+              className={`relative flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 group ${
+                currentPath === membersLink.href ||
+                currentPath.startsWith("/members")
+                  ? "text-foreground"
+                  : "text-foreground/70 hover:text-foreground"
+              }`}
+            >
+              <UserCircle
+                className={`h-4 w-4 relative z-10 transition-transform ${
+                  currentPath === membersLink.href ||
+                  currentPath.startsWith("/members")
+                    ? "scale-110"
+                    : "group-hover:scale-110"
+                }`}
+              />
+              <span className="relative z-10">{membersLink.title}</span>
+              <span
+                className={`absolute inset-0 rounded-lg bg-primary/5 transition-opacity duration-200 ${
+                  currentPath === membersLink.href ||
+                  currentPath.startsWith("/members")
+                    ? "opacity-100"
+                    : "opacity-0 group-hover:opacity-100"
+                }`}
+              ></span>
+              <span
+                className={`absolute inset-0 rounded-lg bg-gradient-to-r from-primary/10 to-purple-600/10 blur-sm transition-opacity duration-200 ${
+                  currentPath === membersLink.href ||
+                  currentPath.startsWith("/members")
+                    ? "opacity-100"
+                    : "opacity-0 group-hover:opacity-100"
+                }`}
+              ></span>
+            </Link>
           </nav>
         </div>
 
@@ -188,18 +251,46 @@ export function Header() {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="pr-0">
-            <div className="px-7">
+            <div className="px-7 pt-8">
               <Link
                 to="/"
                 className="flex items-center space-x-2"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                <Code className="h-6 w-6 text-primary" />
-                <span className="font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+                <Code className="h-6 w-6 text-primary shrink-0" />
+                <span className="font-semibold text-base bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent whitespace-nowrap leading-none">
                   Full Stack Campus
                 </span>
               </Link>
               <nav className="flex flex-col gap-2 mt-6">
+                <Link
+                  to={classroomLink.href}
+                  className={`relative flex items-center gap-2 px-4 py-2.5 rounded-lg text-lg transition-all duration-200 group ${
+                    currentPath === classroomLink.href ||
+                    currentPath.startsWith("/classroom")
+                      ? "text-foreground"
+                      : "text-foreground/70 hover:text-foreground"
+                  }`}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <BookOpen
+                    className={`h-5 w-5 relative z-10 transition-transform ${
+                      currentPath === classroomLink.href ||
+                      currentPath.startsWith("/classroom")
+                        ? "scale-110"
+                        : "group-hover:scale-110"
+                    }`}
+                  />
+                  <span className="relative z-10">{classroomLink.title}</span>
+                  <span
+                    className={`absolute inset-0 rounded-lg bg-primary/5 transition-opacity duration-200 ${
+                      currentPath === classroomLink.href ||
+                      currentPath.startsWith("/classroom")
+                        ? "opacity-100"
+                        : "opacity-0 group-hover:opacity-100"
+                    }`}
+                  ></span>
+                </Link>
                 <Link
                   to={communityLink.href}
                   className={`relative flex items-center gap-2 px-4 py-2.5 rounded-lg text-lg transition-all duration-200 group ${
@@ -223,34 +314,6 @@ export function Header() {
                     className={`absolute inset-0 rounded-lg bg-primary/5 transition-opacity duration-200 ${
                       currentPath === communityLink.href ||
                       currentPath.startsWith("/community")
-                        ? "opacity-100"
-                        : "opacity-0 group-hover:opacity-100"
-                    }`}
-                  ></span>
-                </Link>
-                <Link
-                  to={membersLink.href}
-                  className={`relative flex items-center gap-2 px-4 py-2.5 rounded-lg text-lg transition-all duration-200 group ${
-                    currentPath === membersLink.href ||
-                    currentPath.startsWith("/members")
-                      ? "text-foreground"
-                      : "text-foreground/70 hover:text-foreground"
-                  }`}
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <UserCircle
-                    className={`h-5 w-5 relative z-10 transition-transform ${
-                      currentPath === membersLink.href ||
-                      currentPath.startsWith("/members")
-                        ? "scale-110"
-                        : "group-hover:scale-110"
-                    }`}
-                  />
-                  <span className="relative z-10">{membersLink.title}</span>
-                  <span
-                    className={`absolute inset-0 rounded-lg bg-primary/5 transition-opacity duration-200 ${
-                      currentPath === membersLink.href ||
-                      currentPath.startsWith("/members")
                         ? "opacity-100"
                         : "opacity-0 group-hover:opacity-100"
                     }`}
@@ -284,6 +347,99 @@ export function Header() {
                     }`}
                   ></span>
                 </Link>
+                <Link
+                  to={membersLink.href}
+                  className={`relative flex items-center gap-2 px-4 py-2.5 rounded-lg text-lg transition-all duration-200 group ${
+                    currentPath === membersLink.href ||
+                    currentPath.startsWith("/members")
+                      ? "text-foreground"
+                      : "text-foreground/70 hover:text-foreground"
+                  }`}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <UserCircle
+                    className={`h-5 w-5 relative z-10 transition-transform ${
+                      currentPath === membersLink.href ||
+                      currentPath.startsWith("/members")
+                        ? "scale-110"
+                        : "group-hover:scale-110"
+                    }`}
+                  />
+                  <span className="relative z-10">{membersLink.title}</span>
+                  <span
+                    className={`absolute inset-0 rounded-lg bg-primary/5 transition-opacity duration-200 ${
+                      currentPath === membersLink.href ||
+                      currentPath.startsWith("/members")
+                        ? "opacity-100"
+                        : "opacity-0 group-hover:opacity-100"
+                    }`}
+                  ></span>
+                </Link>
+                {session && (
+                  <>
+                    <Link
+                      to="/messages"
+                      search={{ conversation: undefined }}
+                      className={`relative flex items-center gap-2 px-4 py-2.5 rounded-lg text-lg transition-all duration-200 group ${
+                        currentPath === messagesLink.href ||
+                        currentPath.startsWith("/messages")
+                          ? "text-foreground"
+                          : "text-foreground/70 hover:text-foreground"
+                      }`}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <MessageSquare
+                        className={`h-5 w-5 relative z-10 transition-transform ${
+                          currentPath === messagesLink.href ||
+                          currentPath.startsWith("/messages")
+                            ? "scale-110"
+                            : "group-hover:scale-110"
+                        }`}
+                      />
+                      <span className="relative z-10">
+                        {messagesLink.title}
+                      </span>
+                      <span
+                        className={`absolute inset-0 rounded-lg bg-primary/5 transition-opacity duration-200 ${
+                          currentPath === messagesLink.href ||
+                          currentPath.startsWith("/messages")
+                            ? "opacity-100"
+                            : "opacity-0 group-hover:opacity-100"
+                        }`}
+                      ></span>
+                    </Link>
+                    <Link
+                      to={notificationsLink.href}
+                      className={`relative flex items-center gap-2 px-4 py-2.5 rounded-lg text-lg transition-all duration-200 group ${
+                        currentPath === notificationsLink.href ||
+                        currentPath.startsWith("/notifications")
+                          ? "text-foreground"
+                          : "text-foreground/70 hover:text-foreground"
+                      }`}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <Bell
+                        className={`h-5 w-5 relative z-10 transition-transform ${
+                          currentPath === notificationsLink.href ||
+                          currentPath.startsWith("/notifications")
+                            ? "scale-110"
+                            : "group-hover:scale-110"
+                        }`}
+                      />
+                      <span className="relative z-10">
+                        {notificationsLink.title}
+                      </span>
+                      <span
+                        className={`absolute inset-0 rounded-lg bg-primary/5 transition-opacity duration-200 ${
+                          currentPath === notificationsLink.href ||
+                          currentPath.startsWith("/notifications")
+                            ? "opacity-100"
+                            : "opacity-0 group-hover:opacity-100"
+                        }`}
+                      ></span>
+                    </Link>
+                  </>
+                )}
               </nav>
             </div>
           </SheetContent>
@@ -297,6 +453,7 @@ export function Header() {
               </div>
             ) : session ? (
               <>
+                <MessagesBell />
                 <NotificationBell />
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -342,7 +499,7 @@ export function Header() {
                         <span>Settings</span>
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => authClient.signOut()}>
+                    <DropdownMenuItem onClick={handleSignOut}>
                       <LogOut className="mr-2 h-4 w-4" />
                       <span>Log out</span>
                     </DropdownMenuItem>

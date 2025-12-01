@@ -19,6 +19,7 @@ import { Page } from "~/components/Page";
 import { AppBreadcrumb } from "~/components/AppBreadcrumb";
 import { UserAvatar } from "~/components/UserAvatar";
 import { PortfolioItemCard } from "~/components/PortfolioItemCard";
+import { StartConversationButton } from "~/components/StartConversationButton";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
@@ -136,15 +137,25 @@ function Profile() {
                     </span>
                   </div>
                 </div>
-                {/* Edit button - only show if viewing own profile */}
-                {isOwnProfile && (
-                  <Button asChild variant="outline" className="shrink-0">
-                    <Link to="/settings" className="flex items-center gap-2">
-                      <Edit className="h-4 w-4" />
-                      Edit Profile
-                    </Link>
-                  </Button>
-                )}
+                {/* Action buttons */}
+                <div className="flex items-center gap-2 shrink-0">
+                  {/* Send Message button - only show if viewing someone else's profile and logged in */}
+                  {!isOwnProfile && session?.user && (
+                    <StartConversationButton
+                      userId={userId}
+                      variant="default"
+                    />
+                  )}
+                  {/* Edit button - only show if viewing own profile */}
+                  {isOwnProfile && (
+                    <Button asChild variant="outline">
+                      <Link to="/settings" className="flex items-center gap-2">
+                        <Edit className="h-4 w-4" />
+                        Edit Profile
+                      </Link>
+                    </Button>
+                  )}
+                </div>
               </div>
 
               {/* Bio */}

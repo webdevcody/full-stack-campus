@@ -1,10 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { 
+import {
   getPresignedUploadUrlFn,
   getPresignedImageUploadUrlFn,
   updateUserProfileFn,
-  getProfileImageUploadUrlFn
+  getProfileImageUploadUrlFn,
+  getModuleContentUploadUrlFn
 } from "~/fn/storage";
 import { getImageUrlQuery } from "~/queries/storage";
 import { getErrorMessage } from "~/utils/error";
@@ -73,6 +74,29 @@ export function useGetProfileImageUploadUrl() {
       toast.error("Failed to get profile image upload URL", {
         description: getErrorMessage(error),
       });
+    },
+  });
+}
+
+// Hook for getting module content upload URL
+export function useGetUploadUrl() {
+  return useMutation({
+    mutationFn: (data: { fileName: string; fileType: string; folder?: string }) =>
+      getModuleContentUploadUrlFn({ data }),
+    onError: (error) => {
+      toast.error("Failed to get upload URL", {
+        description: getErrorMessage(error),
+      });
+    },
+  });
+}
+
+// Placeholder for confirm upload - returns success immediately
+export function useConfirmUpload() {
+  return useMutation({
+    mutationFn: async (_data: { key: string }) => {
+      // No additional confirmation needed - upload is already complete
+      return { success: true };
     },
   });
 }

@@ -106,6 +106,20 @@
       "when": 1764613299170,
       "tag": "0014_spicy_wendigo",
       "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1764629852569,
+      "tag": "0015_sharp_bulldozer",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1764630002858,
+      "tag": "0016_short_sentinels",
+      "breakpoints": true
     }
   ]
 }

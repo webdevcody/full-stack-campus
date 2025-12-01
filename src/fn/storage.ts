@@ -102,6 +102,32 @@ export const getProfileImageUploadUrlFn = createServerFn({ method: "POST" })
     return { presignedUrl, imageKey };
   });
 
+// Generic file upload for modules content
+export const getModuleContentUploadUrlFn = createServerFn({ method: "POST" })
+  .middleware([authenticatedMiddleware])
+  .inputValidator(
+    z.object({
+      fileName: z.string(),
+      fileType: z.string(),
+      folder: z.string().optional().default("modules"),
+    })
+  )
+  .handler(async ({ data, context }) => {
+    const userId = context.userId;
+
+    if (!userId) {
+      throw new Error("User not authenticated");
+    }
+
+    const fileExtension = data.fileName.split(".").pop() || "";
+    const key = `${data.folder}/${userId}/${Date.now()}.${fileExtension}`;
+
+    const { storage } = getStorage();
+    const uploadUrl = await storage.getPresignedUploadUrl(key, data.fileType);
+
+    return { uploadUrl, key };
+  });
+
 export const deleteUserAccountFn = createServerFn({ method: "POST" })
   .middleware([authenticatedMiddleware])
   .inputValidator(

@@ -16,6 +16,9 @@ export const user = pgTable("user", {
     .$defaultFn(() => false)
     .notNull(),
   image: text("image"),
+  isAdmin: boolean("is_admin")
+    .$default(() => false)
+    .notNull(),
   stripeCustomerId: text("stripe_customer_id"),
   subscriptionId: text("subscription_id"),
   plan: text("plan").$default(() => "free").notNull(),
@@ -410,6 +413,10 @@ export const userRelations = relations(user, ({ one, many }) => ({
   }),
   portfolioItems: many(portfolioItem),
   notifications: many(notification),
+  classroomModules: many(classroomModule),
+  conversationsAsParticipant1: many(conversation, { relationName: "conversationsAsParticipant1" }),
+  conversationsAsParticipant2: many(conversation, { relationName: "conversationsAsParticipant2" }),
+  sentMessages: many(message),
 }));
 
 export const userProfileRelations = relations(userProfile, ({ one }) => ({
@@ -453,6 +460,136 @@ export const notification = pgTable("notification", {
 export const notificationRelations = relations(notification, ({ one }) => ({
   user: one(user, {
     fields: [notification.userId],
+    references: [user.id],
+  }),
+}));
+
+// Classroom Modules
+export const classroomModule = pgTable("classroom_module", {
+  id: text("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description"),
+  order: integer("order").notNull(),
+  isPublished: boolean("is_published")
+    .$default(() => false)
+    .notNull(),
+  createdBy: text("created_by")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at")
+    .$defaultFn(() => new Date())
+    .notNull(),
+  updatedAt: timestamp("updated_at")
+    .$defaultFn(() => new Date())
+    .notNull(),
+}, (table) => [
+  index("idx_classroom_module_order").on(table.order),
+  index("idx_classroom_module_is_published").on(table.isPublished),
+  index("idx_classroom_module_created_by").on(table.createdBy),
+]);
+
+// Module Content
+export const moduleContent = pgTable("module_content", {
+  id: text("id").primaryKey(),
+  moduleId: text("module_id")
+    .notNull()
+    .references(() => classroomModule.id, { onDelete: "cascade" }),
+  type: text("type").notNull(), // 'video', 'task', 'image', 'pdf', 'text'
+  title: text("title").notNull(),
+  description: text("description"),
+  fileKey: text("file_key"), // R2 storage key
+  url: text("url"), // External link or presigned URL
+  content: text("content"), // For text content
+  position: integer("position").notNull(),
+  createdAt: timestamp("created_at")
+    .$defaultFn(() => new Date())
+    .notNull(),
+  updatedAt: timestamp("updated_at")
+    .$defaultFn(() => new Date())
+    .notNull(),
+}, (table) => [
+  index("idx_module_content_module_id").on(table.moduleId),
+  index("idx_module_content_position").on(table.moduleId, table.position),
+]);
+
+export const classroomModuleRelations = relations(classroomModule, ({ one, many }) => ({
+  user: one(user, {
+    fields: [classroomModule.createdBy],
+    references: [user.id],
+  }),
+  contents: many(moduleContent),
+}));
+
+export const moduleContentRelations = relations(moduleContent, ({ one }) => ({
+  module: one(classroomModule, {
+    fields: [moduleContent.moduleId],
+    references: [classroomModule.id],
+  }),
+}));
+
+// Conversations - Private messaging between two users
+export const conversation = pgTable("conversation", {
+  id: text("id").primaryKey(),
+  participant1Id: text("participant1_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  participant2Id: text("participant2_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  lastMessageAt: timestamp("last_message_at"),
+  createdAt: timestamp("created_at")
+    .$defaultFn(() => new Date())
+    .notNull(),
+}, (table) => [
+  index("idx_conversation_participant1").on(table.participant1Id),
+  index("idx_conversation_participant2").on(table.participant2Id),
+  index("idx_conversation_last_message_at").on(table.lastMessageAt),
+]);
+
+// Messages within conversations
+export const message = pgTable("message", {
+  id: text("id").primaryKey(),
+  conversationId: text("conversation_id")
+    .notNull()
+    .references(() => conversation.id, { onDelete: "cascade" }),
+  senderId: text("sender_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  content: text("content").notNull(),
+  isRead: boolean("is_read")
+    .$default(() => false)
+    .notNull(),
+  readAt: timestamp("read_at"),
+  createdAt: timestamp("created_at")
+    .$defaultFn(() => new Date())
+    .notNull(),
+}, (table) => [
+  index("idx_message_conversation_id").on(table.conversationId),
+  index("idx_message_sender_id").on(table.senderId),
+  index("idx_message_created_at").on(table.conversationId, table.createdAt),
+]);
+
+export const conversationRelations = relations(conversation, ({ one, many }) => ({
+  participant1: one(user, {
+    fields: [conversation.participant1Id],
+    references: [user.id],
+    relationName: "conversationsAsParticipant1",
+  }),
+  participant2: one(user, {
+    fields: [conversation.participant2Id],
+    references: [user.id],
+    relationName: "conversationsAsParticipant2",
+  }),
+  messages: many(message),
+}));
+
+export const messageRelations = relations(message, ({ one }) => ({
+  conversation: one(conversation, {
+    fields: [message.conversationId],
+    references: [conversation.id],
+  }),
+  sender: one(user, {
+    fields: [message.senderId],
     references: [user.id],
   }),
 }));
@@ -523,3 +660,23 @@ export type Notification = typeof notification.$inferSelect;
 export type CreateNotificationData = typeof notification.$inferInsert;
 export type NotificationType = "post-reply" | "comment-reply" | "new-message";
 export type NotificationRelatedType = "post" | "comment" | "message";
+
+export type ClassroomModule = typeof classroomModule.$inferSelect;
+export type CreateClassroomModuleData = typeof classroomModule.$inferInsert;
+export type UpdateClassroomModuleData = Partial<
+  Omit<CreateClassroomModuleData, "id" | "createdAt" | "createdBy">
+>;
+
+export type ModuleContent = typeof moduleContent.$inferSelect;
+export type CreateModuleContentData = typeof moduleContent.$inferInsert;
+export type UpdateModuleContentData = Partial<
+  Omit<CreateModuleContentData, "id" | "createdAt" | "moduleId">
+>;
+
+export type ModuleContentType = "video" | "task" | "image" | "pdf" | "text";
+
+export type Conversation = typeof conversation.$inferSelect;
+export type CreateConversationData = typeof conversation.$inferInsert;
+
+export type Message = typeof message.$inferSelect;
+export type CreateMessageData = typeof message.$inferInsert;

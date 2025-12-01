@@ -14,7 +14,9 @@ import { Route as SignUpRouteImport } from './routes/sign-up'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as NotificationsRouteImport } from './routes/notifications'
+import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as MembersRouteImport } from './routes/members'
+import { Route as ClassroomRouteImport } from './routes/classroom'
 import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CommunityIndexRouteImport } from './routes/community/index'
@@ -50,9 +52,19 @@ const NotificationsRoute = NotificationsRouteImport.update({
   path: '/notifications',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MessagesRoute = MessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MembersRoute = MembersRouteImport.update({
   id: '/members',
   path: '/members',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClassroomRoute = ClassroomRouteImport.update({
+  id: '/classroom',
+  path: '/classroom',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CalendarRoute = CalendarRouteImport.update({
@@ -105,7 +117,9 @@ const CommunityPostPostIdEditRoute = CommunityPostPostIdEditRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/calendar': typeof CalendarRoute
+  '/classroom': typeof ClassroomRoute
   '/members': typeof MembersRoute
+  '/messages': typeof MessagesRoute
   '/notifications': typeof NotificationsRoute
   '/settings': typeof SettingsRoute
   '/sign-in': typeof SignInRoute
@@ -122,7 +136,9 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/calendar': typeof CalendarRoute
+  '/classroom': typeof ClassroomRoute
   '/members': typeof MembersRoute
+  '/messages': typeof MessagesRoute
   '/notifications': typeof NotificationsRoute
   '/settings': typeof SettingsRoute
   '/sign-in': typeof SignInRoute
@@ -140,7 +156,9 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/calendar': typeof CalendarRoute
+  '/classroom': typeof ClassroomRoute
   '/members': typeof MembersRoute
+  '/messages': typeof MessagesRoute
   '/notifications': typeof NotificationsRoute
   '/settings': typeof SettingsRoute
   '/sign-in': typeof SignInRoute
@@ -159,7 +177,9 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/calendar'
+    | '/classroom'
     | '/members'
+    | '/messages'
     | '/notifications'
     | '/settings'
     | '/sign-in'
@@ -176,7 +196,9 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/calendar'
+    | '/classroom'
     | '/members'
+    | '/messages'
     | '/notifications'
     | '/settings'
     | '/sign-in'
@@ -193,7 +215,9 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/calendar'
+    | '/classroom'
     | '/members'
+    | '/messages'
     | '/notifications'
     | '/settings'
     | '/sign-in'
@@ -211,7 +235,9 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CalendarRoute: typeof CalendarRoute
+  ClassroomRoute: typeof ClassroomRoute
   MembersRoute: typeof MembersRoute
+  MessagesRoute: typeof MessagesRoute
   NotificationsRoute: typeof NotificationsRoute
   SettingsRoute: typeof SettingsRoute
   SignInRoute: typeof SignInRoute
@@ -263,11 +289,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NotificationsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/messages': {
+      id: '/messages'
+      path: '/messages'
+      fullPath: '/messages'
+      preLoaderRoute: typeof MessagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/members': {
       id: '/members'
       path: '/members'
       fullPath: '/members'
       preLoaderRoute: typeof MembersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/classroom': {
+      id: '/classroom'
+      path: '/classroom'
+      fullPath: '/classroom'
+      preLoaderRoute: typeof ClassroomRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/calendar': {
@@ -339,7 +379,9 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CalendarRoute: CalendarRoute,
+  ClassroomRoute: ClassroomRoute,
   MembersRoute: MembersRoute,
+  MessagesRoute: MessagesRoute,
   NotificationsRoute: NotificationsRoute,
   SettingsRoute: SettingsRoute,
   SignInRoute: SignInRoute,
