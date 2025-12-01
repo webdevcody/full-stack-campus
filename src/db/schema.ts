@@ -409,6 +409,7 @@ export const userRelations = relations(user, ({ one, many }) => ({
     references: [userProfile.id],
   }),
   portfolioItems: many(portfolioItem),
+  notifications: many(notification),
 }));
 
 export const userProfileRelations = relations(userProfile, ({ one }) => ({
@@ -421,6 +422,37 @@ export const userProfileRelations = relations(userProfile, ({ one }) => ({
 export const portfolioItemRelations = relations(portfolioItem, ({ one }) => ({
   user: one(user, {
     fields: [portfolioItem.userId],
+    references: [user.id],
+  }),
+}));
+
+// Notifications
+export const notification = pgTable("notification", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  type: text("type").notNull(), // 'post-reply', 'comment-reply', 'new-message', etc.
+  title: text("title").notNull(),
+  content: text("content"),
+  relatedId: text("related_id"), // postId, messageId, commentId, etc.
+  relatedType: text("related_type"), // 'post', 'comment', 'message'
+  isRead: boolean("is_read")
+    .$default(() => false)
+    .notNull(),
+  readAt: timestamp("read_at"),
+  createdAt: timestamp("created_at")
+    .$defaultFn(() => new Date())
+    .notNull(),
+}, (table) => [
+  index("idx_notification_user_id").on(table.userId),
+  index("idx_notification_is_read").on(table.userId, table.isRead),
+  index("idx_notification_created_at").on(table.userId, table.createdAt),
+]);
+
+export const notificationRelations = relations(notification, ({ one }) => ({
+  user: one(user, {
+    fields: [notification.userId],
     references: [user.id],
   }),
 }));
@@ -486,3 +518,8 @@ export type CreatePortfolioItemData = typeof portfolioItem.$inferInsert;
 export type UpdatePortfolioItemData = Partial<
   Omit<CreatePortfolioItemData, "id" | "userId" | "createdAt">
 >;
+
+export type Notification = typeof notification.$inferSelect;
+export type CreateNotificationData = typeof notification.$inferInsert;
+export type NotificationType = "post-reply" | "comment-reply" | "new-message";
+export type NotificationRelatedType = "post" | "comment" | "message";

@@ -10,6 +10,7 @@ import {
   PinOff,
   Trash2,
   Edit,
+  ArrowRight,
 } from "lucide-react";
 import { Page } from "~/components/Page";
 import { PageTitle } from "~/components/PageTitle";
@@ -35,9 +36,10 @@ export const Route = createFileRoute("/community/")({
   validateSearch: (search: Record<string, unknown>) => {
     const category = search.category as string | undefined;
     return {
-      category: category && POST_CATEGORIES.includes(category as PostCategory)
-        ? (category as PostCategory)
-        : undefined,
+      category:
+        category && POST_CATEGORIES.includes(category as PostCategory)
+          ? (category as PostCategory)
+          : undefined,
     };
   },
   loaderDeps: ({ search: { category } }) => ({ category }),
@@ -50,7 +52,9 @@ export const Route = createFileRoute("/community/")({
 
 function PostCard({ post, isAdmin }: { post: PostWithUser; isAdmin: boolean }) {
   const { data: session } = authClient.useSession();
-  const { data: commentCount = 0 } = useQuery(postCommentCountQueryOptions(post.id));
+  const { data: commentCount = 0 } = useQuery(
+    postCommentCountQueryOptions(post.id)
+  );
   const { data: attachments = [] } = usePostAttachments(post.id);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const pinPost = usePinPost();
@@ -109,7 +113,13 @@ function PostCard({ post, isAdmin }: { post: PostWithUser; isAdmin: boolean }) {
 
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap mb-2">
-              <span className="font-medium text-sm">{post.user.name}</span>
+              <Link
+                to="/profile/$userId"
+                params={{ userId: post.user.id }}
+                className="font-medium text-sm hover:text-primary transition-colors"
+              >
+                {post.user.name}
+              </Link>
               <span className="text-muted-foreground text-xs">
                 {formatRelativeTime(new Date(post.createdAt).toISOString())}
               </span>
@@ -182,6 +192,15 @@ function PostCard({ post, isAdmin }: { post: PostWithUser; isAdmin: boolean }) {
                   <span>{commentCount}</span>
                 </Link>
               </div>
+            </div>
+
+            <div className="mt-3 pt-3 border-t border-border">
+              <Button asChild variant="outline" size="sm" className="w-full">
+                <Link to="/community/post/$postId" params={{ postId: post.id }}>
+                  View Post
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Link>
+              </Button>
             </div>
           </div>
         </div>
@@ -273,7 +292,9 @@ function PostListSkeleton({ count = 5 }: { count?: number }) {
 function Community() {
   const { category } = Route.useSearch();
   const navigate = Route.useNavigate();
-  const { data: posts, isLoading } = useQuery(recentPostsQueryOptions(category));
+  const { data: posts, isLoading } = useQuery(
+    recentPostsQueryOptions(category)
+  );
   const { data: adminData } = useIsAdmin();
   const isAdmin = adminData?.isAdmin ?? false;
 

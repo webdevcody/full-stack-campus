@@ -33,9 +33,8 @@ import { useAttachmentUrls } from "~/hooks/useAttachments";
 export const postFormSchema = z.object({
   title: z
     .string()
-    .max(200, "Title must be less than 200 characters")
-    .optional()
-    .or(z.literal("")),
+    .min(1, "Title is required")
+    .max(200, "Title must be less than 200 characters"),
   content: z
     .string()
     .min(1, "Content is required")
@@ -210,10 +209,10 @@ export function PostForm({
           name="title"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-base font-medium">Title</FormLabel>
+              <FormLabel className="text-base font-medium">Title *</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="Give your post a title (optional)"
+                  placeholder="Give your post a title"
                   className="h-11 text-base"
                   disabled={isPending}
                   {...field}

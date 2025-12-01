@@ -23,37 +23,47 @@ export type PublicProfile = {
 
 /**
  * Get user profile by user ID
+ * Creates profile if it doesn't exist (one-to-one mapping)
  */
-export async function getUserProfile(userId: string): Promise<UserProfile | null> {
+export async function getUserProfile(
+  userId: string
+): Promise<UserProfile | null> {
   const [result] = await database
     .select()
     .from(userProfile)
     .where(eq(userProfile.id, userId))
     .limit(1);
 
-  return result || null;
+  // If profile doesn't exist, create it (one-to-one mapping)
+  if (!result) {
+    try {
+      const [newProfile] = await database
+        .insert(userProfile)
+        .values({
+          id: userId,
+          isPublic: true,
+          updatedAt: new Date(),
+        })
+        .returning();
+
+      return newProfile;
+    } catch (error: any) {
+      // If insert fails (e.g., user doesn't exist), return null
+      return null;
+    }
+  }
+
+  return result;
 }
 
 /**
  * Get or create user profile - ensures profile exists
  */
-export async function getOrCreateUserProfile(userId: string): Promise<UserProfile> {
-  const existing = await getUserProfile(userId);
-  if (existing) {
-    return existing;
-  }
-
-  // Create new profile
-  const [newProfile] = await database
-    .insert(userProfile)
-    .values({
-      id: userId,
-      isPublic: true,
-      updatedAt: new Date(),
-    })
-    .returning();
-
-  return newProfile;
+export async function getOrCreateUserProfile(
+  userId: string
+): Promise<UserProfile | null> {
+  // getUserProfile already handles creating the profile if it doesn't exist
+  return getUserProfile(userId);
 }
 
 /**
@@ -64,7 +74,12 @@ export async function updateUserProfile(
   data: UpdateUserProfileData
 ): Promise<UserProfile> {
   // First ensure profile exists
-  await getOrCreateUserProfile(userId);
+  const profile = await getOrCreateUserProfile(userId);
+  if (!profile) {
+    throw new Error(
+      "User profile table does not exist. Please run database migrations."
+    );
+  }
 
   // Then update it
   const [updated] = await database
@@ -82,21 +97,29 @@ export async function updateUserProfile(
 /**
  * Update user bio
  */
-export async function updateUserBio(userId: string, bio: string | null): Promise<UserProfile> {
+export async function updateUserBio(
+  userId: string,
+  bio: string | null
+): Promise<UserProfile> {
   return updateUserProfile(userId, { bio });
 }
 
 /**
  * Update user skills
  */
-export async function updateUserSkills(userId: string, skills: string[]): Promise<UserProfile> {
+export async function updateUserSkills(
+  userId: string,
+  skills: string[]
+): Promise<UserProfile> {
   return updateUserProfile(userId, { skills });
 }
 
 /**
  * Get public profile with user info and portfolio items
  */
-export async function getPublicProfile(userId: string): Promise<PublicProfile | null> {
+export async function getPublicProfile(
+  userId: string
+): Promise<PublicProfile | null> {
   // Get user first
   const [userData] = await database
     .select({
@@ -113,20 +136,35 @@ export async function getPublicProfile(userId: string): Promise<PublicProfile | 
     return null;
   }
 
-  // Get profile (may not exist)
-  const profile = await getUserProfile(userId);
+  // Get or create profile (lazily create if doesn't exist)
+  const profile = await getOrCreateUserProfile(userId);
+
+  // If profile doesn't exist (table not migrated), return basic profile
+  if (!profile) {
+    return {
+      user: userData,
+      profile: null,
+      portfolioItems: [],
+    };
+  }
 
   // Check if profile is private
-  if (profile && !profile.isPublic) {
+  if (!profile.isPublic) {
     return null;
   }
 
   // Get portfolio items
-  const portfolioItems = await database
-    .select()
-    .from(portfolioItem)
-    .where(eq(portfolioItem.userId, userId))
-    .orderBy(portfolioItem.createdAt);
+  let portfolioItems: PortfolioItem[] = [];
+  try {
+    portfolioItems = await database
+      .select()
+      .from(portfolioItem)
+      .where(eq(portfolioItem.userId, userId))
+      .orderBy(portfolioItem.createdAt);
+  } catch (error: any) {
+    // If query fails, return empty array
+    portfolioItems = [];
+  }
 
   return {
     user: userData,

@@ -29,7 +29,7 @@ export function AppBreadcrumb({ items }: AppBreadcrumbProps) {
       <BreadcrumbList>
         {items.map((item, index) => {
           const isLast = index === items.length - 1;
-          
+
           return (
             <div key={`${item.label}-${index}`} className="flex items-center">
               <BreadcrumbItem>

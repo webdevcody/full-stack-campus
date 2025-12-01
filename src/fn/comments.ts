@@ -4,6 +4,7 @@ import { authenticatedMiddleware } from "./middleware";
 import {
   createComment,
   findCommentById,
+  findCommentByIdWithUser,
   findPostComments,
   findCommentReplies,
   updateComment,
@@ -11,6 +12,7 @@ import {
   countPostComments,
 } from "~/data-access/comments";
 import { findPostById } from "~/data-access/posts";
+import { createNotification } from "~/data-access/notifications";
 
 export const createCommentFn = createServerFn({
   method: "POST",
@@ -50,6 +52,58 @@ export const createCommentFn = createServerFn({
     };
 
     const newComment = await createComment(commentData);
+
+    // Create notifications
+    try {
+      if (data.parentCommentId) {
+        // Replying to a comment - notify the comment author
+        const parentComment = await findCommentByIdWithUser(
+          data.parentCommentId
+        );
+        if (parentComment && parentComment.userId !== context.userId) {
+          const contentPreview =
+            data.content.length > 100
+              ? data.content.substring(0, 100) + "..."
+              : data.content;
+
+          await createNotification({
+            id: crypto.randomUUID(),
+            userId: parentComment.userId,
+            type: "comment-reply",
+            title: "Someone replied to your comment",
+            content: contentPreview,
+            relatedId: data.postId,
+            relatedType: "post",
+            isRead: false,
+            readAt: null,
+          });
+        }
+      } else {
+        // Replying to a post - notify the post author
+        if (post.userId !== context.userId) {
+          const contentPreview =
+            data.content.length > 100
+              ? data.content.substring(0, 100) + "..."
+              : data.content;
+
+          await createNotification({
+            id: crypto.randomUUID(),
+            userId: post.userId,
+            type: "post-reply",
+            title: "Someone commented on your post",
+            content: contentPreview,
+            relatedId: data.postId,
+            relatedType: "post",
+            isRead: false,
+            readAt: null,
+          });
+        }
+      }
+    } catch (error) {
+      // Don't fail the comment creation if notification fails
+      console.error("Failed to create notification:", error);
+    }
+
     return newComment;
   });
 

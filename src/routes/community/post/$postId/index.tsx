@@ -152,9 +152,13 @@ function PostDetail() {
                       size="md"
                     />
                     <div>
-                      <p className="font-medium">
+                      <Link
+                        to="/profile/$userId"
+                        params={{ userId: post.user.id }}
+                        className="font-medium hover:text-primary transition-colors"
+                      >
                         {post.user.name || "Anonymous"}
-                      </p>
+                      </Link>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Clock className="h-3 w-3" />
                         <span>

@@ -1,5 +1,17 @@
-import { UserPlus, BookOpen, Code, Briefcase, CheckCircle2 } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
+import {
+  UserPlus,
+  BookOpen,
+  Code,
+  Briefcase,
+  CheckCircle2,
+} from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
 import { FadeIn } from "~/components/ui/fade-in";
 
 const steps = [
@@ -7,28 +19,32 @@ const steps = [
     number: "01",
     icon: UserPlus,
     title: "Sign Up & Join",
-    description: "Create your account and join our community. Get instant access to resources, forums, and learning materials.",
+    description:
+      "Create your account and join our community. Get instant access to resources, forums, and learning materials.",
     timeline: "Day 1",
   },
   {
     number: "02",
     icon: BookOpen,
     title: "Follow the Learning Path",
-    description: "Work through our structured curriculum at your own pace. Learn frontend, backend, and full stack integration.",
+    description:
+      "Work through our structured curriculum at your own pace. Learn frontend, backend, and full stack integration.",
     timeline: "Weeks 1-6",
   },
   {
     number: "03",
     icon: Code,
     title: "Build Real Projects",
-    description: "Apply what you learn by building portfolio projects. Get code reviews and feedback from mentors and peers.",
+    description:
+      "Apply what you learn by building portfolio projects. Get code reviews and feedback from mentors and peers.",
     timeline: "Weeks 7-12",
   },
   {
     number: "04",
     icon: Briefcase,
     title: "Land Your Dream Job",
-    description: "Get career support with resume reviews, interview prep, and job search guidance. Connect with hiring managers.",
+    description:
+      "Get career support with resume reviews, interview prep, and job search guidance. Connect with hiring managers.",
     timeline: "Weeks 13+",
   },
 ];
@@ -43,7 +59,9 @@ export function HowItWorksSection() {
               How It <span className="text-primary">Works</span>
             </h2>
             <p className="text-lg text-muted-foreground sm:text-xl max-w-3xl mx-auto leading-relaxed">
-              A clear, proven path from beginner to full stack engineer. No confusion, no guesswork - just a structured journey to your new career.
+              A clear, proven path from beginner to full stack engineer. No
+              confusion, no guesswork - just a structured journey to your new
+              career.
             </p>
           </div>
         </FadeIn>
@@ -57,7 +75,7 @@ export function HowItWorksSection() {
                   <Card className="relative h-full hover:shadow-md transition-shadow border-muted">
                     <CardHeader>
                       <div className="flex items-start gap-4">
-                        <div className="flex-shrink-0">
+                        <div className="shrink-0">
                           <div className="rounded-lg bg-primary/10 p-3">
                             <Icon className="h-6 w-6 text-primary" />
                           </div>
@@ -71,7 +89,9 @@ export function HowItWorksSection() {
                               {step.timeline}
                             </span>
                           </div>
-                          <CardTitle className="text-xl mb-2">{step.title}</CardTitle>
+                          <CardTitle className="text-xl mb-2">
+                            {step.title}
+                          </CardTitle>
                         </div>
                       </div>
                     </CardHeader>
@@ -97,8 +117,10 @@ export function HowItWorksSection() {
                     </h3>
                   </div>
                   <p className="text-muted-foreground text-lg leading-relaxed">
-                    Most members land their first full stack engineer role within 6-12 months of starting. 
-                    Your pace depends on your schedule and prior experience. We're here to support you every step of the way.
+                    Most members land their first full stack engineer role
+                    within 6-12 months of starting. Your pace depends on your
+                    schedule and prior experience. We're here to support you
+                    every step of the way.
                   </p>
                 </CardContent>
               </Card>

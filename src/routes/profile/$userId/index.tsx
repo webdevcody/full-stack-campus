@@ -19,12 +19,7 @@ import { Page } from "~/components/Page";
 import { AppBreadcrumb } from "~/components/AppBreadcrumb";
 import { UserAvatar } from "~/components/UserAvatar";
 import { PortfolioItemCard } from "~/components/PortfolioItemCard";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
 import { publicProfileQueryOptions } from "~/queries/profiles";
@@ -238,7 +233,11 @@ function Profile() {
             <CardContent>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {portfolioItems.map((item) => (
-                  <PortfolioItemCard key={item.id} item={item} isOwner={false} />
+                  <PortfolioItemCard
+                    key={item.id}
+                    item={item}
+                    isOwner={false}
+                  />
                 ))}
               </div>
             </CardContent>
