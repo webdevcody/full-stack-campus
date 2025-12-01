@@ -24,7 +24,8 @@ import { formatRelativeTime } from "~/utils/song";
 import type { PostWithUser } from "~/data-access/posts";
 import { authClient } from "~/lib/auth-client";
 import { DeletePostDialog } from "~/components/DeletePostDialog";
-import { UserAvatar } from "~/components/UserAvatar";
+import { UserAvatarLink } from "~/components/UserAvatarLink";
+import { UserNameLink } from "~/components/UserNameLink";
 import { CategoryFilter } from "~/components/CategoryFilter";
 import { POST_CATEGORIES, type PostCategory } from "~/fn/posts";
 import { useIsAdmin, usePinPost } from "~/hooks/usePosts";
@@ -104,7 +105,8 @@ function PostCard({ post, isAdmin }: { post: PostWithUser; isAdmin: boolean }) {
     <>
       <article className="bg-card rounded-xl shadow-sm border border-border overflow-hidden hover:shadow-md transition-all duration-200 group relative p-5">
         <div className="flex items-start gap-4">
-          <UserAvatar
+          <UserAvatarLink
+            userId={post.user.id}
             imageKey={post.user.image}
             name={post.user.name}
             size="md"
@@ -113,13 +115,11 @@ function PostCard({ post, isAdmin }: { post: PostWithUser; isAdmin: boolean }) {
 
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap mb-2">
-              <Link
-                to="/profile/$userId"
-                params={{ userId: post.user.id }}
-                className="font-medium text-sm hover:text-primary transition-colors"
-              >
-                {post.user.name}
-              </Link>
+              <UserNameLink
+                userId={post.user.id}
+                name={post.user.name}
+                className="text-sm"
+              />
               <span className="text-muted-foreground text-xs">
                 {formatRelativeTime(new Date(post.createdAt).toISOString())}
               </span>

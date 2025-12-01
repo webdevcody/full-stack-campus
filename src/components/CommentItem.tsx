@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Clock, MessageSquare, Edit, Trash2 } from "lucide-react";
 import { Card, CardContent } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
-import { UserAvatar } from "~/components/UserAvatar";
+import { UserAvatarLink } from "~/components/UserAvatarLink";
+import { UserNameLink } from "~/components/UserNameLink";
 import { formatRelativeTime } from "~/utils/song";
 import type { CommentWithUser } from "~/data-access/comments";
 import { CommentForm } from "./CommentForm";
@@ -56,7 +57,8 @@ export function CommentItem({
       <Card>
         <CardContent className="pt-4 pb-3">
           <div className="flex gap-3">
-            <UserAvatar
+            <UserAvatarLink
+              userId={comment.user.id}
               imageKey={comment.user.image}
               name={comment.user.name}
               size="sm"
@@ -64,9 +66,11 @@ export function CommentItem({
             />
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-medium text-sm">
-                  {comment.user.name || "Anonymous"}
-                </span>
+                <UserNameLink
+                  userId={comment.user.id}
+                  name={comment.user.name}
+                  className="text-sm"
+                />
                 <span className="text-xs text-muted-foreground flex items-center gap-1">
                   <Clock className="h-3 w-3" />
                   {formatRelativeTime(

@@ -11,7 +11,8 @@ import { postQueryOptions } from "~/queries/posts";
 import { formatRelativeTime } from "~/utils/song";
 import { authClient } from "~/lib/auth-client";
 import { DeletePostDialog } from "~/components/DeletePostDialog";
-import { UserAvatar } from "~/components/UserAvatar";
+import { UserAvatarLink } from "~/components/UserAvatarLink";
+import { UserNameLink } from "~/components/UserNameLink";
 import { CommentList } from "~/components/CommentList";
 import { useIsAdmin, usePinPost } from "~/hooks/usePosts";
 import { PostLikeButton } from "~/components/PostLikeButton";
@@ -146,19 +147,17 @@ function PostDetail() {
                 {/* Author and Timestamp */}
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-3">
-                    <UserAvatar
+                    <UserAvatarLink
+                      userId={post.user.id}
                       imageKey={post.user.image}
                       name={post.user.name}
                       size="md"
                     />
                     <div>
-                      <Link
-                        to="/profile/$userId"
-                        params={{ userId: post.user.id }}
-                        className="font-medium hover:text-primary transition-colors"
-                      >
-                        {post.user.name || "Anonymous"}
-                      </Link>
+                      <UserNameLink
+                        userId={post.user.id}
+                        name={post.user.name}
+                      />
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Clock className="h-3 w-3" />
                         <span>
